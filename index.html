@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anicade Tech CV Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Roboto+Slab:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="rings-bg" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <header class="top-bar">
+    <a class="brand" href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">
+      <span class="brand-mark">A</span>
+      <span>ANICADE<span class="dot">.</span>CV</span>
+    </a>
+    <nav class="main-tabs" aria-label="Application sections">
+      <button class="tab-button active" type="button" data-tab="builder">Builder</button>
+      <button class="tab-button" type="button" data-tab="recent">Recent</button>
+      <button class="tab-button" type="button" data-tab="legal">Terms</button>
+    </nav>
+    <a class="site-link" href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">Anicade Tech</a>
+  </header>
+
+  <main>
+    <section class="app-shell tab-panel active" id="builder-panel">
+      <aside class="control-panel" aria-label="CV information form">
+        <div class="panel-head">
+          <p class="eyebrow">Professional CV Generator</p>
+          <h1>Build a full job-ready CV</h1>
+          <p>Enter your information once, choose a CV style and font, then export a polished multi-page CV.</p>
+        </div>
+
+        <div class="progress-card">
+          <div>
+            <span id="completion-label">0%</span>
+            <p>CV completion</p>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <span id="completion-bar"></span>
+          </div>
+        </div>
+
+        <form id="cv-form">
+          <details open>
+            <summary>Personal Information</summary>
+            <div class="form-grid">
+              <label>Full name <input name="fullName" placeholder="e.g. Mutale Chanda" required></label>
+              <label>Target role <input name="targetRole" placeholder="e.g. Software Developer" required></label>
+              <label>Email <input name="email" type="email" placeholder="you@example.com" required></label>
+              <label>Phone <input name="phone" placeholder="+260 777 000 000" required></label>
+              <label>Location <input name="location" placeholder="Lusaka, Zambia"></label>
+              <label>Portfolio or LinkedIn <input name="portfolio" placeholder="https://linkedin.com/in/you"></label>
+            </div>
+          </details>
+
+          <details open>
+            <summary>Professional Profile</summary>
+            <label class="full">Summary
+              <textarea name="summary" rows="5" placeholder="Write a concise career summary that shows your experience, strengths and the value you bring."></textarea>
+            </label>
+            <label class="full">Key skills
+              <textarea name="skills" rows="4" placeholder="Project management, customer support, Excel, sales, leadership, web development"></textarea>
+            </label>
+          </details>
+
+          <details open>
+            <summary>Work Experience</summary>
+            <div class="repeat-head">
+              <p>Add current and previous roles. Include measurable results where possible.</p>
+              <button class="mini-button" type="button" data-add="experience">Add role</button>
+            </div>
+            <div id="experience-list" class="repeat-list"></div>
+          </details>
+
+          <details>
+            <summary>Education</summary>
+            <div class="repeat-head">
+              <p>Add qualifications, institutions and study dates.</p>
+              <button class="mini-button" type="button" data-add="education">Add education</button>
+            </div>
+            <div id="education-list" class="repeat-list"></div>
+          </details>
+
+          <details>
+            <summary>Projects, Certifications & Awards</summary>
+            <label class="full">Projects
+              <textarea name="projects" rows="4" placeholder="Project name - what you built or achieved, tools used, outcome."></textarea>
+            </label>
+            <label class="full">Certifications
+              <textarea name="certifications" rows="3" placeholder="Certificate name, provider, year"></textarea>
+            </label>
+            <label class="full">Awards or achievements
+              <textarea name="awards" rows="3" placeholder="Employee of the month, sales target exceeded, competition winner"></textarea>
+            </label>
+          </details>
+
+          <details>
+            <summary>Extra Information</summary>
+            <div class="form-grid">
+              <label>Languages <input name="languages" placeholder="English, Bemba, Nyanja"></label>
+              <label>Availability <input name="availability" placeholder="Immediately / 2 weeks notice"></label>
+              <label>References <input name="references" placeholder="Available on request"></label>
+              <label>Preferred CV font
+                <select name="cvFont">
+                  <option value="Inter">Inter</option>
+                  <option value="Source Sans 3">Source Sans 3</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Lora">Lora</option>
+                  <option value="Merriweather">Merriweather</option>
+                  <option value="Roboto Slab">Roboto Slab</option>
+                </select>
+              </label>
+              <label>CV accent colour
+                <select name="accent">
+                  <option value="#0f766e">Professional teal</option>
+                  <option value="#1d4ed8">Corporate blue</option>
+                  <option value="#7c2d12">Executive copper</option>
+                  <option value="#374151">Classic graphite</option>
+                </select>
+              </label>
+              <label>CV format
+                <select name="template">
+                  <option value="modern">Modern two-column</option>
+                  <option value="classic">Classic single-column</option>
+                </select>
+              </label>
+            </div>
+          </details>
+        </form>
+      </aside>
+
+      <section class="preview-panel" aria-label="Generated CV preview">
+        <div class="preview-toolbar">
+          <div>
+            <p class="eyebrow">Live Preview</p>
+            <h2 id="preview-title">Your CV is taking shape</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" id="sample-button">Use sample</button>
+            <button type="button" id="clear-button">Clear</button>
+            <button type="button" id="print-button" class="primary-action">Print / Save PDF</button>
+          </div>
+        </div>
+        <div class="cv-stage">
+          <article id="cv-preview" class="cv-document cv-modern"></article>
+        </div>
+      </section>
+    </section>
+
+    <section class="tab-panel standalone-panel" id="recent-panel">
+      <div class="empty-state">
+        <span class="empty-icon">+</span>
+        <p class="eyebrow">Storage & Recent CVs</p>
+        <h2>Coming soon</h2>
+        <p>Saved CV history, cloud storage and version recovery will be added in a future release.</p>
+      </div>
+    </section>
+
+    <section class="tab-panel standalone-panel legal-panel" id="legal-panel">
+      <div class="legal-card">
+        <p class="eyebrow">Anicade CV Generator</p>
+        <h2>Terms of Use</h2>
+        <p>This tool helps users create CV documents from the information they provide. Users are responsible for ensuring that all CV content is truthful, accurate and appropriate for job applications.</p>
+        <p>The generator is provided for convenience and does not guarantee employment, interview selection or recruiter approval. Users should review the generated CV before sending it to employers.</p>
+        <p>Anicade Tech branding and website links belong to Anicade Tech. Visit <a href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">www.anicadetech.xyz</a> for company information.</p>
+
+        <h2>Privacy Policy</h2>
+        <p>This version processes CV information in the browser. The Recent and Storage feature is marked as coming soon and this page does not upload CV entries to a backend service.</p>
+        <p>When storage features are introduced, users should be told what data is saved, where it is saved, how long it is retained and how deletion requests are handled.</p>
+        <p>Do not enter sensitive information that is not needed for a job application, such as passwords, bank details or national identity numbers.</p>
+      </div>
+    </section>
+  </main>
+
+  <template id="experience-template">
+    <div class="repeat-item" data-kind="experience">
+      <button class="remove-button" type="button" aria-label="Remove role">Remove</button>
+      <div class="form-grid">
+        <label>Job title <input data-field="role" placeholder="Sales Assistant"></label>
+        <label>Company <input data-field="company" placeholder="ABC Ltd"></label>
+        <label>Dates <input data-field="dates" placeholder="Jan 2022 - Present"></label>
+        <label>Location <input data-field="place" placeholder="Kabwe, Zambia"></label>
+      </div>
+      <label class="full">Responsibilities and achievements
+        <textarea data-field="details" rows="4" placeholder="Managed customer enquiries&#10;Improved monthly sales by 18%&#10;Prepared reports and coordinated stock records"></textarea>
+      </label>
+    </div>
+  </template>
+
+  <template id="education-template">
+    <div class="repeat-item" data-kind="education">
+      <button class="remove-button" type="button" aria-label="Remove education">Remove</button>
+      <div class="form-grid">
+        <label>Qualification <input data-field="qualification" placeholder="Diploma in Business Administration"></label>
+        <label>Institution <input data-field="institution" placeholder="University or college"></label>
+        <label>Dates <input data-field="dates" placeholder="2019 - 2021"></label>
+        <label>Location <input data-field="place" placeholder="Lusaka, Zambia"></label>
+      </div>
+      <label class="full">Notes
+        <textarea data-field="notes" rows="3" placeholder="Relevant modules, distinctions, research, leadership roles"></textarea>
+      </label>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
