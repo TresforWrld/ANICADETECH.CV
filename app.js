@@ -7,18 +7,18 @@ const experienceList = document.querySelector("#experience-list");
 const educationList = document.querySelector("#education-list");
 
 const sampleData = {
-  fullName: "Mutale Chanda",
+  fullName: "Tresfor Zulu",
   targetRole: "Operations Coordinator",
-  email: "mutale.chanda@example.com",
+  email: "tresfor@example.com",
   phone: "+260 777 083 995",
   location: "Kabwe, Zambia",
-  portfolio: "https://linkedin.com/in/mutalechanda",
+  portfolio: "https://linkedin.com/in/username",
   summary: "Detail-oriented operations professional with 5+ years of experience coordinating teams, improving administrative systems and supporting customer-facing projects. Known for strong communication, accurate reporting and reliable delivery in fast-paced environments.",
   skills: "Operations coordination, Team supervision, Customer service, Microsoft Excel, Report writing, Procurement support, Scheduling, Problem solving, Communication, Data entry",
   projects: "Branch filing system upgrade - redesigned paper and digital records, reducing document retrieval time by 40%.\nCustomer feedback dashboard - consolidated weekly service issues and helped managers prioritize improvements.",
   certifications: "Project Management Fundamentals, Alison, 2024\nAdvanced Excel for Business, Coursera, 2023",
   awards: "Recognized for outstanding customer support, 2023\nExceeded monthly reporting accuracy target for six consecutive months",
-  languages: "English, Bemba, Nyanja",
+  languages: "English, Bemba, Nyanja, Chinese, Japanese",
   availability: "Immediately",
   references: "Available on request",
   cvFont: "Inter",
