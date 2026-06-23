@@ -3,213 +3,1754 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anicade Tech CV Generator</title>
+  <title>ANICADE.CV — Professional CV Generator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Roboto+Slab:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────────── */
+    :root {
+      --primary: #0b1c2d;
+      --panel: rgba(15, 30, 48, 0.92);
+      --panel-strong: #102237;
+      --accent: #00bfff;
+      --gold: #c6a85c;
+      --text: #f5f7fa;
+      --muted: #94a3b8;
+      --line: rgba(255, 255, 255, 0.09);
+      --field: rgba(255, 255, 255, 0.055);
+      --danger: #f97373;
+      --success: #34d399;
+    }
+
+    /* ── RESET ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(0,191,255,.16), transparent 32rem),
+        radial-gradient(circle at 78% 12%, rgba(198,168,92,.12), transparent 30rem),
+        var(--primary);
+      color: var(--text);
+      font-family: "Rajdhani", sans-serif;
+      overflow-x: hidden;
+    }
+    button, input, textarea, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    /* ── ANIMATED RINGS ─────────────────────────────────────── */
+    .rings-bg {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .rings-bg span {
+      position: absolute; top: 50%; left: 50%;
+      border: 1.5px solid transparent; border-radius: 38% 62% 63% 37%/41% 44% 56% 59%;
+    }
+    .rings-bg span:nth-child(1) {
+      width: 920px; height: 920px; margin: -460px 0 0 -460px;
+      border-color: rgba(0,191,255,.07);
+      animation: spin 28s linear infinite;
+    }
+    .rings-bg span:nth-child(2) {
+      width: 620px; height: 620px; margin: -310px 0 0 -310px;
+      border-color: rgba(198,168,92,.07);
+      animation: spinR 18s linear infinite;
+    }
+    .rings-bg span:nth-child(3) {
+      width: 410px; height: 410px; margin: -205px 0 0 -205px;
+      border-color: rgba(0,191,255,.04);
+      animation: spin 38s linear infinite reverse;
+    }
+    @keyframes spin  { to { transform: rotate(360deg);  } }
+    @keyframes spinR { to { transform: rotate(-360deg); } }
+
+    /* ── TOP BAR ────────────────────────────────────────────── */
+    .top-bar {
+      position: sticky; top: 0; z-index: 50;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px; align-items: center;
+      padding: 13px 28px;
+      background: rgba(11,28,45,.92);
+      border-bottom: 1px solid rgba(198,168,92,.18);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: var(--gold);
+      font-family: "Orbitron", sans-serif;
+      font-size: 14px; font-weight: 900; letter-spacing: 1.5px;
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: grid; width: 34px; height: 34px;
+      place-items: center;
+      border: 1px solid rgba(198,168,92,.45);
+      border-radius: 50%; color: var(--accent);
+      font-size: 15px; font-weight: 900;
+      box-shadow: 0 0 22px rgba(0,191,255,.16);
+    }
+    .dot { color: var(--accent); }
+    .main-tabs {
+      display: flex; justify-content: center; gap: 6px;
+    }
+    .tab-btn {
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-weight: 700; font-size: 12px;
+      letter-spacing: .6px; text-transform: uppercase;
+      transition: all .2s ease;
+    }
+    .tab-btn:hover { border-color: rgba(0,191,255,.4); color: var(--text); transform: translateY(-1px); }
+    .tab-btn.active {
+      background: rgba(0,191,255,.13);
+      border-color: rgba(0,191,255,.5);
+      color: var(--accent);
+    }
+    .site-link {
+      padding: 9px 15px; border-radius: 8px; text-decoration: none;
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(255,255,255,.04);
+      color: var(--gold); font-weight: 700; font-size: 13px;
+      transition: all .2s ease;
+    }
+    .site-link:hover { border-color: rgba(198,168,92,.45); transform: translateY(-1px); }
+
+    /* ── MAIN / PANELS ──────────────────────────────────────── */
+    main { position: relative; z-index: 1; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── BUILDER SHELL ──────────────────────────────────────── */
+    .app-shell {
+      display: none;
+      grid-template-columns: minmax(340px, 480px) minmax(0, 1fr);
+      min-height: calc(100vh - 62px);
+    }
+    .app-shell.active { display: grid; }
+
+    /* ── CONTROL PANEL (LEFT) ───────────────────────────────── */
+    .control-panel {
+      padding: 24px;
+      border-right: 1px solid var(--line);
+      background: rgba(11,28,45,.5);
+      overflow-y: auto;
+      max-height: calc(100vh - 62px);
+    }
+    .panel-head {
+      padding: 22px; margin-bottom: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.18);
+    }
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font-family: "Orbitron", sans-serif;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 2.6px; text-transform: uppercase;
+    }
+    h1, h2, h3 { margin: 0; font-family: "Orbitron", sans-serif; letter-spacing: 0; }
+    .panel-head h1 {
+      color: var(--gold); font-size: 26px; line-height: 1.1;
+    }
+    .panel-head p { color: var(--muted); line-height: 1.55; margin: 10px 0 0; }
+
+    /* progress */
+    .progress-card {
+      display: grid; gap: 10px;
+      margin-bottom: 16px; padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .progress-row { display: flex; justify-content: space-between; align-items: center; }
+    .progress-card .pct {
+      color: var(--gold);
+      font-family: "Orbitron", sans-serif;
+      font-size: 22px; font-weight: 900;
+    }
+    .progress-card .plabel { color: var(--muted); font-size: 13px; font-weight: 600; }
+    .progress-track {
+      height: 6px; overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+    }
+    .progress-fill {
+      display: block; width: 0; height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+      transition: width .3s ease;
+    }
+
+    /* form / details */
+    form { display: grid; gap: 12px; }
+    details {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    summary {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 18px; min-height: 54px;
+      color: var(--text);
+      font-family: "Orbitron", sans-serif;
+      font-size: 12px; font-weight: 700; letter-spacing: .4px;
+      cursor: pointer; list-style: none;
+      border-bottom: 1px solid transparent;
+      transition: background .15s;
+    }
+    details[open] summary {
+      border-bottom-color: var(--line);
+      background: rgba(0,191,255,.04);
+    }
+    summary::after {
+      content: "›"; margin-left: auto;
+      font-size: 18px; color: var(--muted);
+      transform: rotate(90deg);
+      transition: transform .2s ease;
+    }
+    details[open] summary::after { transform: rotate(270deg); }
+    .section-body { padding: 16px 18px 18px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+    label {
+      display: grid; gap: 6px;
+      color: rgba(245,247,250,.82);
+      font-size: 13px; font-weight: 700;
+    }
+    label.full { grid-column: 1 / -1; }
+    input, textarea, select {
+      width: 100%; min-width: 0;
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 8px;
+      background: var(--field);
+      color: var(--text);
+      padding: 11px 12px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    textarea { resize: vertical; }
+    select option { color: #111827; }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(0,191,255,.55);
+      box-shadow: 0 0 0 3px rgba(0,191,255,.1);
+    }
+
+    /* repeat sections */
+    .repeat-head {
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .repeat-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .mini-btn {
+      padding: 8px 12px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(198,168,92,.4);
+      background: rgba(198,168,92,.08);
+      color: var(--gold); font-weight: 800; font-size: 12px;
+      white-space: nowrap; transition: all .2s;
+    }
+    .mini-btn:hover { background: rgba(198,168,92,.16); transform: translateY(-1px); }
+    .repeat-list { display: grid; gap: 12px; }
+    .repeat-item {
+      position: relative; padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      background: rgba(255,255,255,.03);
+    }
+    .remove-btn {
+      position: absolute; top: 8px; right: 8px;
+      padding: 5px 9px; border-radius: 6px; cursor: pointer;
+      border: 1px solid rgba(249,115,115,.3);
+      background: rgba(249,115,115,.08);
+      color: var(--danger); font-size: 11px; font-weight: 800;
+      transition: all .2s;
+    }
+    .remove-btn:hover { background: rgba(249,115,115,.18); }
+    .repeat-item .form-grid { padding-top: 30px; }
+
+    /* ai-enhance inline btn */
+    .ai-enhance-row {
+      display: flex; justify-content: flex-end; margin-top: 8px;
+    }
+    .ai-enhance-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 11px; border-radius: 6px; cursor: pointer;
+      border: 1px solid rgba(0,191,255,.3);
+      background: rgba(0,191,255,.07);
+      color: var(--accent); font-size: 12px; font-weight: 700;
+      transition: all .2s;
+    }
+    .ai-enhance-btn:hover { background: rgba(0,191,255,.14); }
+    .ai-enhance-btn svg { flex-shrink: 0; }
+
+    /* ── PREVIEW PANEL (RIGHT) ──────────────────────────────── */
+    .preview-panel {
+      min-width: 0; padding: 24px;
+      overflow-y: auto;
+      max-height: calc(100vh - 62px);
+    }
+    .preview-toolbar {
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 16px; flex-wrap: wrap;
+      margin-bottom: 18px; padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .preview-toolbar h2 { font-size: 17px; color: var(--gold); }
+    .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .tool-btn {
+      padding: 9px 13px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.045);
+      color: var(--muted); font-weight: 800; font-size: 12px;
+      transition: all .2s;
+    }
+    .tool-btn:hover { border-color: rgba(0,191,255,.4); color: var(--text); transform: translateY(-1px); }
+    .tool-btn.primary {
+      background: linear-gradient(135deg, rgba(198,168,92,.22), rgba(0,191,255,.17));
+      border-color: rgba(198,168,92,.45); color: var(--gold);
+    }
+    .cv-stage {
+      display: grid; justify-content: center;
+      gap: 18px; overflow: auto;
+      padding: 8px 4px 40px;
+    }
+
+    /* ── CV DOCUMENT STYLES ─────────────────────────────────── */
+    .cv-document {
+      --cv-accent: #0f766e;
+      --cv-font: "Inter";
+      width: 210mm; min-height: 297mm;
+      color: #1a2332;
+      font-family: var(--cv-font), Arial, sans-serif;
+    }
+    .cv-page {
+      width: 210mm; min-height: 297mm;
+      margin-bottom: 20px;
+      background: #ffffff;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      page-break-after: always;
+    }
+    .cv-page:last-child { page-break-after: auto; }
+
+    /* MODERN template */
+    .cv-modern .cv-page {
+      display: grid;
+      grid-template-columns: 38% 62%;
+    }
+    .cv-sidebar {
+      padding: 36px 26px;
+      background: #f0f4f8;
+      border-right: 3px solid var(--cv-accent);
+    }
+    .cv-main { padding: 36px 34px; }
+    .cv-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--cv-accent);
+      display: grid; place-items: center;
+      margin-bottom: 18px;
+      font-size: 28px; font-weight: 900;
+      color: white; font-family: var(--cv-font);
+    }
+    .cv-name {
+      margin: 0 0 5px;
+      font-size: 28px; line-height: 1.1;
+      font-weight: 800; color: #111827;
+      font-family: var(--cv-font), Arial, sans-serif;
+    }
+    .cv-role {
+      margin: 0 0 20px;
+      font-size: 13px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--cv-accent);
+    }
+    .cv-section { margin-bottom: 22px; break-inside: avoid; }
+    .cv-section h3 {
+      margin: 0 0 10px; padding-bottom: 5px;
+      border-bottom: 2px solid var(--cv-accent);
+      font-family: var(--cv-font), Arial, sans-serif;
+      font-size: 11px; font-weight: 800;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: #111827;
+    }
+    .cv-section p {
+      margin: 0 0 7px;
+      font-size: 12.5px; line-height: 1.6; color: #374151;
+    }
+    .cv-list {
+      display: grid; gap: 5px;
+      margin: 0; padding: 0; list-style: none;
+    }
+    .cv-list li { font-size: 12.5px; line-height: 1.45; color: #374151; }
+    .cv-main .cv-list { padding-left: 16px; list-style: disc; }
+    .cv-item { margin-bottom: 16px; }
+    .cv-item h4 {
+      margin: 0 0 3px; font-size: 14px; font-weight: 700; color: #111827;
+    }
+    .cv-item-role { font-size: 13px; font-weight: 700; color: var(--cv-accent); margin: 0 0 3px; }
+    .cv-meta { color: #6b7280; font-size: 11.5px; font-weight: 600; }
+    .cv-contact-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; color: #4b5563; margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .cv-contact-item svg { flex-shrink: 0; margin-top: 1px; }
+    .cv-skill-pill {
+      display: inline-block;
+      padding: 4px 10px; margin: 3px 3px 0 0;
+      border-radius: 4px;
+      background: var(--cv-accent);
+      color: white; font-size: 11px; font-weight: 700;
+    }
+    .cv-footer-note {
+      margin-top: 20px; padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      color: #9ca3af; font-size: 10.5px;
+    }
+
+    /* CLASSIC template */
+    .cv-classic .cv-page {
+      display: block; padding: 40px 52px;
+    }
+    .cv-classic .cv-sidebar,
+    .cv-classic .cv-main {
+      padding: 0; background: transparent; border: 0;
+    }
+    .cv-classic .cv-sidebar { margin-bottom: 22px; }
+    .cv-classic .cv-name { font-size: 34px; }
+    .cv-classic .cv-section h3 {
+      font-size: 12px; letter-spacing: 1.5px;
+    }
+    .cv-classic .cv-contact-item { display: inline-flex; margin-right: 20px; }
+    .cv-classic-contacts { display: flex; flex-wrap: wrap; gap: 6px 0; margin-bottom: 18px; }
+
+    /* EXECUTIVE template */
+    .cv-executive .cv-page {
+      display: block;
+    }
+    .cv-executive .cv-header-band {
+      background: #1a2332;
+      padding: 34px 44px;
+      color: white;
+    }
+    .cv-executive .cv-sidebar {
+      background: transparent; border: 0; padding: 0;
+    }
+    .cv-executive .cv-name { color: white; font-size: 32px; }
+    .cv-executive .cv-role { color: var(--cv-accent); margin-bottom: 14px; }
+    .cv-executive .cv-contact-item { color: rgba(255,255,255,.75); }
+    .cv-executive .cv-exec-contacts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 14px; }
+    .cv-executive .cv-body { display: grid; grid-template-columns: 34% 66%; }
+    .cv-executive .cv-sidebar-inner { padding: 28px 24px 28px 44px; background: #f7f9fb; border-right: 1px solid #e5e7eb; }
+    .cv-executive .cv-main { padding: 28px 36px 28px 28px; }
+    .cv-executive .cv-section h3 {
+      font-size: 11px; letter-spacing: 1.2px;
+      border-bottom: 2px solid var(--cv-accent);
+    }
+
+    /* MINIMAL template */
+    .cv-minimal .cv-page {
+      display: block; padding: 48px 56px;
+    }
+    .cv-minimal .cv-sidebar,
+    .cv-minimal .cv-main { padding: 0; background: transparent; border: 0; }
+    .cv-minimal .cv-header { border-bottom: 1px solid #e5e7eb; padding-bottom: 22px; margin-bottom: 28px; }
+    .cv-minimal .cv-name { font-size: 36px; letter-spacing: -1px; color: #111827; }
+    .cv-minimal .cv-role { color: var(--cv-accent); margin: 6px 0 14px; }
+    .cv-minimal .cv-section h3 {
+      font-size: 10px; letter-spacing: 2px; color: #9ca3af;
+      border-bottom: 1px solid #f3f4f6; margin-bottom: 12px;
+    }
+    .cv-minimal .cv-sidebar { margin-bottom: 24px; }
+    .cv-minimal-contacts { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+    .cv-minimal .cv-contact-item { font-size: 12.5px; }
+
+    /* ── TEMPLATE GALLERY TAB ───────────────────────────────── */
+    .gallery-panel {
+      min-height: calc(100vh - 62px);
+      padding: 36px 28px;
+    }
+    .gallery-panel .eyebrow { margin-bottom: 6px; }
+    .gallery-panel > h2 {
+      color: var(--gold); font-size: 28px; margin-bottom: 6px;
+    }
+    .gallery-panel > p { color: var(--muted); margin: 0 0 32px; line-height: 1.6; }
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .template-card {
+      border: 2px solid var(--line);
+      border-radius: 12px; overflow: hidden;
+      background: var(--panel);
+      cursor: pointer; transition: all .25s;
+    }
+    .template-card:hover { border-color: rgba(0,191,255,.4); transform: translateY(-3px); }
+    .template-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .template-thumb {
+      height: 200px; overflow: hidden;
+      background: white; position: relative;
+    }
+    .template-thumb-inner {
+      transform: scale(.38) translateX(-50%) translateY(-50%);
+      transform-origin: 0 0;
+      position: absolute; top: 50%; left: 50%;
+      width: 210mm; pointer-events: none;
+    }
+    .template-info { padding: 16px 18px; }
+    .template-name {
+      color: var(--gold);
+      font-family: "Orbitron", sans-serif;
+      font-size: 12px; font-weight: 700; margin: 0 0 5px;
+    }
+    .template-desc { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+    .template-accents { display: flex; gap: 6px; }
+    .accent-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color .2s;
+    }
+    .accent-dot.active { border-color: white; }
+    .select-template-btn {
+      display: block; width: 100%;
+      margin-top: 12px; padding: 9px;
+      border-radius: 8px; cursor: pointer; text-align: center;
+      border: 1px solid rgba(0,191,255,.35);
+      background: rgba(0,191,255,.08);
+      color: var(--accent); font-weight: 800; font-size: 12px;
+      transition: all .2s;
+    }
+    .select-template-btn:hover { background: rgba(0,191,255,.18); }
+    .select-template-btn.selected-state {
+      background: rgba(0,191,255,.2);
+      border-color: var(--accent);
+    }
+
+    /* ── RECENT TAB ─────────────────────────────────────────── */
+    .recent-panel {
+      min-height: calc(100vh - 62px);
+      padding: 36px 28px;
+    }
+    .recent-panel > h2 { color: var(--gold); margin-bottom: 6px; font-size: 26px; }
+    .recent-panel > p { color: var(--muted); margin: 0 0 24px; }
+    .recent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; }
+    .recent-card {
+      padding: 18px; border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      display: grid; gap: 10px;
+    }
+    .recent-card h4 { margin: 0; color: var(--text); font-size: 15px; }
+    .recent-card .rc-meta { color: var(--muted); font-size: 12px; }
+    .recent-actions { display: flex; gap: 8px; }
+    .rc-load-btn, .rc-del-btn {
+      flex: 1; padding: 7px; border-radius: 7px; cursor: pointer;
+      font-size: 12px; font-weight: 700; border: 1px solid;
+      transition: all .2s;
+    }
+    .rc-load-btn {
+      border-color: rgba(0,191,255,.35);
+      background: rgba(0,191,255,.07); color: var(--accent);
+    }
+    .rc-load-btn:hover { background: rgba(0,191,255,.18); }
+    .rc-del-btn {
+      border-color: rgba(249,115,115,.3);
+      background: rgba(249,115,115,.07); color: var(--danger);
+    }
+    .rc-del-btn:hover { background: rgba(249,115,115,.18); }
+    .save-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .save-name-input {
+      flex: 1; padding: 10px 13px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.11);
+      background: var(--field); color: var(--text); outline: none;
+    }
+    .save-name-input:focus { border-color: rgba(0,191,255,.55); }
+    .save-cv-btn {
+      padding: 10px 18px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(198,168,92,.4);
+      background: rgba(198,168,92,.1); color: var(--gold);
+      font-weight: 800; font-size: 13px; transition: all .2s;
+    }
+    .save-cv-btn:hover { background: rgba(198,168,92,.2); }
+    .empty-recent {
+      padding: 40px; text-align: center;
+      border: 1px dashed rgba(255,255,255,.12);
+      border-radius: 12px; color: var(--muted);
+    }
+
+    /* ── LEGAL TAB ──────────────────────────────────────────── */
+    .legal-panel {
+      min-height: calc(100vh - 62px);
+      padding: 48px 24px;
+      display: flex; justify-content: center;
+    }
+    .legal-card {
+      width: min(820px,100%); padding: 36px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.18);
+    }
+    .legal-card h2 { color: var(--gold); font-size: 22px; margin-bottom: 12px; }
+    .legal-card h2:not(:first-of-type) { margin-top: 28px; }
+    .legal-card p { color: var(--muted); line-height: 1.7; margin: 0 0 12px; }
+    .legal-card a { color: var(--accent); }
+
+    /* ── AI ASSISTANT ───────────────────────────────────────── */
+    .ai-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 100;
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 2px solid rgba(0,191,255,.5);
+      background: linear-gradient(135deg, rgba(0,191,255,.2), rgba(198,168,92,.15));
+      color: var(--accent); cursor: pointer;
+      display: grid; place-items: center;
+      box-shadow: 0 8px 32px rgba(0,191,255,.25);
+      transition: all .25s;
+      backdrop-filter: blur(12px);
+    }
+    .ai-fab:hover { transform: scale(1.1); box-shadow: 0 12px 40px rgba(0,191,255,.35); }
+    .ai-panel {
+      position: fixed; bottom: 96px; right: 28px; z-index: 99;
+      width: min(420px, calc(100vw - 40px));
+      border: 1px solid rgba(0,191,255,.25);
+      border-radius: 14px;
+      background: rgba(10,22,36,.97);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 70px rgba(0,0,0,.4);
+      display: none; flex-direction: column;
+      overflow: hidden;
+      max-height: 500px;
+    }
+    .ai-panel.open { display: flex; }
+    .ai-panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(0,191,255,.15);
+      background: rgba(0,191,255,.06);
+    }
+    .ai-panel-head h3 {
+      margin: 0; font-size: 13px; font-weight: 700;
+      color: var(--accent); font-family: "Orbitron", sans-serif;
+    }
+    .ai-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 18px; padding: 0 4px;
+      transition: color .2s;
+    }
+    .ai-close:hover { color: var(--text); }
+    .ai-messages {
+      flex: 1; overflow-y: auto; padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .ai-msg {
+      max-width: 88%; padding: 10px 13px;
+      border-radius: 10px; font-size: 13px; line-height: 1.55;
+    }
+    .ai-msg.user {
+      align-self: flex-end;
+      background: rgba(0,191,255,.16);
+      border: 1px solid rgba(0,191,255,.25);
+      color: var(--text);
+    }
+    .ai-msg.ai {
+      align-self: flex-start;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--text);
+    }
+    .ai-msg.ai.loading { color: var(--muted); font-style: italic; }
+    .ai-input-row {
+      display: flex; gap: 8px; padding: 12px;
+      border-top: 1px solid rgba(0,191,255,.12);
+    }
+    .ai-input {
+      flex: 1; padding: 9px 12px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text); outline: none; font-size: 13px;
+      transition: border-color .2s;
+    }
+    .ai-input:focus { border-color: rgba(0,191,255,.5); }
+    .ai-send {
+      padding: 9px 14px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(0,191,255,.4);
+      background: rgba(0,191,255,.14);
+      color: var(--accent); font-weight: 800; font-size: 13px;
+      transition: all .2s;
+    }
+    .ai-send:hover { background: rgba(0,191,255,.24); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; z-index: 200;
+      transform: translateX(-50%) translateY(20px);
+      padding: 10px 20px; border-radius: 8px;
+      background: rgba(10,22,36,.95);
+      border: 1px solid rgba(0,191,255,.3);
+      color: var(--text); font-size: 13px; font-weight: 700;
+      opacity: 0; transition: all .25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width: 1180px) {
+      .app-shell.active { grid-template-columns: 1fr; }
+      .control-panel { border-right: 0; border-bottom: 1px solid var(--line); max-height: none; }
+      .preview-panel { max-height: none; }
+    }
+    @media (max-width: 760px) {
+      .top-bar { grid-template-columns: 1fr; gap: 10px; padding: 12px 14px; }
+      .main-tabs { justify-content: stretch; }
+      .tab-btn { flex: 1; padding: 8px 4px; font-size: 10px; }
+      .site-link { justify-self: start; }
+      .control-panel, .preview-panel { padding: 14px; }
+      .panel-head h1 { font-size: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .preview-toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar-actions { justify-content: stretch; }
+      .tool-btn { flex: 1; text-align: center; }
+      .cv-stage { justify-content: start; }
+      .cv-document, .cv-page { width: 794px; }
+      .ai-fab { bottom: 16px; right: 16px; }
+      .ai-panel { right: 16px; bottom: 84px; }
+    }
+
+    /* ── PRINT ──────────────────────────────────────────────── */
+    @media print {
+      body { background: #fff; }
+      .top-bar, .control-panel, .preview-toolbar, .rings-bg,
+      .ai-fab, .ai-panel, .toast, .gallery-panel, .recent-panel, .legal-panel { display: none !important; }
+      .app-shell, .app-shell.active, .preview-panel, .cv-stage {
+        display: block !important; padding: 0; margin: 0;
+        max-height: none; overflow: visible;
+      }
+      .cv-document, .cv-page { width: 210mm; }
+      .cv-page { margin: 0; box-shadow: none; }
+    }
+  </style>
 </head>
 <body>
-  <div class="rings-bg" aria-hidden="true">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
 
-  <header class="top-bar">
-    <a class="brand" href="https://tresforwrld.github.io/ANICADETECH.CV/" target="_blank" rel="noreferrer">
-      <span class="brand-mark">A</span>
-      <span>ANICADE<span class="dot">.</span>CV</span>
-    </a>
-    <nav class="main-tabs" aria-label="Application sections">
-      <button class="tab-button active" type="button" data-tab="builder">Builder</button>
-      <button class="tab-button" type="button" data-tab="recent">Recent</button>
-      <button class="tab-button" type="button" data-tab="legal">Terms</button>
-    </nav>
-    <a class="site-link" href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">Anicade Tech</a>
-  </header>
+<div class="rings-bg" aria-hidden="true"><span></span><span></span><span></span></div>
 
-  <main>
-    <section class="app-shell tab-panel active" id="builder-panel">
-      <aside class="control-panel" aria-label="CV information form">
-        <div class="panel-head">
-          <p class="eyebrow">Professional CV Generator</p>
-          <h1>Build a full job-ready CV</h1>
-          <p>Enter your information once, choose a CV style and font, then export a polished multi-page CV.</p>
+<header class="top-bar">
+  <a class="brand" href="https://tresforwrld.github.io/ANICADETECH.CV/" target="_blank" rel="noreferrer">
+    <span class="brand-mark">A</span>
+    <span>ANICADE<span class="dot">.</span>CV</span>
+  </a>
+  <nav class="main-tabs" aria-label="Application sections">
+    <button class="tab-btn active" type="button" data-tab="builder">Builder</button>
+    <button class="tab-btn" type="button" data-tab="templates">Templates</button>
+    <button class="tab-btn" type="button" data-tab="recent">Recent</button>
+    <button class="tab-btn" type="button" data-tab="legal">Terms</button>
+  </nav>
+  <a class="site-link" href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">Anicade Tech</a>
+</header>
+
+<main>
+
+  <!-- ── BUILDER ───────────────────────────────────────────── -->
+  <section class="app-shell tab-panel active" id="builder-panel">
+    <aside class="control-panel" aria-label="CV form">
+      <div class="panel-head">
+        <p class="eyebrow">Professional CV Generator</p>
+        <h1>Build a job-ready CV</h1>
+        <p>Fill in your details, pick a template and export a polished multi-page CV instantly.</p>
+      </div>
+      <div class="progress-card">
+        <div class="progress-row">
+          <span class="pct" id="completion-label">0%</span>
+          <span class="plabel">CV completion</span>
         </div>
-
-        <div class="progress-card">
-          <div>
-            <span id="completion-label">0%</span>
-            <p>CV completion</p>
-          </div>
-          <div class="progress-track" aria-hidden="true">
-            <span id="completion-bar"></span>
-          </div>
+        <div class="progress-track">
+          <span class="progress-fill" id="completion-bar"></span>
         </div>
+      </div>
+      <form id="cv-form">
 
-        <form id="cv-form">
-          <details open>
-            <summary>Personal Information</summary>
+        <details open>
+          <summary>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Personal Information
+          </summary>
+          <div class="section-body">
             <div class="form-grid">
               <label>Full name <input name="fullName" placeholder="e.g. Mutale Chanda" required></label>
               <label>Target role <input name="targetRole" placeholder="e.g. Software Developer" required></label>
-              <label>Email <input name="email" type="email" placeholder="you@example.com" required></label>
-              <label>Phone <input name="phone" placeholder="+260 777 000 000" required></label>
+              <label>Email <input name="email" type="email" placeholder="you@example.com"></label>
+              <label>Phone <input name="phone" placeholder="+260 777 000 000"></label>
               <label>Location <input name="location" placeholder="Lusaka, Zambia"></label>
-              <label>Portfolio or LinkedIn <input name="portfolio" placeholder="https://linkedin.com/in/you"></label>
+              <label>Portfolio / LinkedIn <input name="portfolio" placeholder="https://linkedin.com/in/you"></label>
             </div>
-          </details>
+          </div>
+        </details>
 
-          <details open>
-            <summary>Professional Profile</summary>
+        <details open>
+          <summary>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            Professional Profile
+          </summary>
+          <div class="section-body">
             <label class="full">Summary
-              <textarea name="summary" rows="5" placeholder="Write a concise career summary that shows your experience, strengths and the value you bring."></textarea>
+              <textarea name="summary" rows="5" placeholder="A concise career summary showing your experience, strengths and the value you bring."></textarea>
             </label>
-            <label class="full">Key skills
-              <textarea name="skills" rows="4" placeholder="Project management, customer support, Excel, sales, leadership, web development"></textarea>
+            <div class="ai-enhance-row">
+              <button type="button" class="ai-enhance-btn" data-field="summary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                AI Enhance
+              </button>
+            </div>
+            <label class="full" style="margin-top:12px">Key skills
+              <textarea name="skills" rows="3" placeholder="Project management, customer support, Excel, sales, web development"></textarea>
             </label>
-          </details>
+          </div>
+        </details>
 
-          <details open>
-            <summary>Work Experience</summary>
+        <details open>
+          <summary>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            Work Experience
+          </summary>
+          <div class="section-body">
             <div class="repeat-head">
-              <p>Add current and previous roles. Include measurable results where possible.</p>
-              <button class="mini-button" type="button" data-add="experience">Add role</button>
+              <p>Add roles. Include measurable results where possible.</p>
+              <button class="mini-btn" type="button" data-add="experience">+ Add role</button>
             </div>
             <div id="experience-list" class="repeat-list"></div>
-          </details>
+          </div>
+        </details>
 
-          <details>
-            <summary>Education</summary>
+        <details>
+          <summary>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            Education
+          </summary>
+          <div class="section-body">
             <div class="repeat-head">
-              <p>Add qualifications, institutions and study dates.</p>
-              <button class="mini-button" type="button" data-add="education">Add education</button>
+              <p>Add qualifications and institutions.</p>
+              <button class="mini-btn" type="button" data-add="education">+ Add education</button>
             </div>
             <div id="education-list" class="repeat-list"></div>
-          </details>
+          </div>
+        </details>
 
-          <details>
-            <summary>Projects, Certifications & Awards</summary>
+        <details>
+          <summary>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Projects, Certs & Awards
+          </summary>
+          <div class="section-body">
             <label class="full">Projects
-              <textarea name="projects" rows="4" placeholder="Project name - what you built or achieved, tools used, outcome."></textarea>
+              <textarea name="projects" rows="4" placeholder="Project name — what you built, tools used, outcome."></textarea>
             </label>
-            <label class="full">Certifications
+            <div class="ai-enhance-row">
+              <button type="button" class="ai-enhance-btn" data-field="projects">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                AI Enhance
+              </button>
+            </div>
+            <label class="full" style="margin-top:12px">Certifications
               <textarea name="certifications" rows="3" placeholder="Certificate name, provider, year"></textarea>
             </label>
-            <label class="full">Awards or achievements
+            <label class="full" style="margin-top:12px">Awards or achievements
               <textarea name="awards" rows="3" placeholder="Employee of the month, sales target exceeded, competition winner"></textarea>
             </label>
-          </details>
+          </div>
+        </details>
 
-          <details>
-            <summary>Extra Information</summary>
+        <details>
+          <summary>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+            Extra Information
+          </summary>
+          <div class="section-body">
             <div class="form-grid">
               <label>Languages <input name="languages" placeholder="English, Bemba, Nyanja"></label>
               <label>Availability <input name="availability" placeholder="Immediately / 2 weeks notice"></label>
               <label>References <input name="references" placeholder="Available on request"></label>
-              <label>Preferred CV font
-                <select name="cvFont">
-                  <option value="Inter">Inter</option>
-                  <option value="Source Sans 3">Source Sans 3</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Lora">Lora</option>
-                  <option value="Merriweather">Merriweather</option>
-                  <option value="Roboto Slab">Roboto Slab</option>
-                </select>
-              </label>
-              <label>CV accent colour
-                <select name="accent">
-                  <option value="#0f766e">Professional teal</option>
-                  <option value="#1d4ed8">Corporate blue</option>
-                  <option value="#7c2d12">Executive copper</option>
-                  <option value="#374151">Classic graphite</option>
-                </select>
-              </label>
-              <label>CV format
-                <select name="template">
-                  <option value="modern">Modern two-column</option>
-                  <option value="classic">Classic single-column</option>
-                </select>
-              </label>
+              <label>Nationality <input name="nationality" placeholder="Zambian"></label>
             </div>
-          </details>
-        </form>
-      </aside>
-
-      <section class="preview-panel" aria-label="Generated CV preview">
-        <div class="preview-toolbar">
-          <div>
-            <p class="eyebrow">Live Preview</p>
-            <h2 id="preview-title">Your CV is taking shape</h2>
           </div>
-          <div class="toolbar-actions">
-            <button type="button" id="sample-button">Use sample</button>
-            <button type="button" id="clear-button">Clear</button>
-            <button type="button" id="print-button" class="primary-action">Print / Save PDF</button>
-          </div>
+        </details>
+
+      </form>
+    </aside>
+
+    <section class="preview-panel" aria-label="CV preview">
+      <div class="preview-toolbar">
+        <div>
+          <p class="eyebrow">Live Preview</p>
+          <h2 id="preview-title">Your CV is taking shape</h2>
         </div>
-        <div class="cv-stage">
-          <article id="cv-preview" class="cv-document cv-modern"></article>
+        <div class="toolbar-actions">
+          <button type="button" class="tool-btn" id="sample-button">Sample data</button>
+          <button type="button" class="tool-btn" id="clear-button">Clear</button>
+          <button type="button" class="tool-btn" id="html-button">Export HTML</button>
+          <button type="button" class="tool-btn primary" id="print-button">Print / PDF</button>
         </div>
-      </section>
-    </section>
-
-    <section class="tab-panel standalone-panel" id="recent-panel">
-      <div class="empty-state">
-        <span class="empty-icon">+</span>
-        <p class="eyebrow">Storage & Recent CVs</p>
-        <h2>Coming soon</h2>
-        <p>Saved CV history, cloud storage and version recovery will be added in a future release.</p>
+      </div>
+      <div class="cv-stage">
+        <article id="cv-preview" class="cv-document cv-modern"></article>
       </div>
     </section>
+  </section>
 
-    <section class="tab-panel standalone-panel legal-panel" id="legal-panel">
-      <div class="legal-card">
-        <p class="eyebrow">Anicade CV Generator</p>
-        <h2>Terms of Use</h2>
-        <p>This tool helps users create CV documents from the information they provide. Users are responsible for ensuring that all CV content is truthful, accurate and appropriate for job applications.</p>
-        <p>The generator is provided for convenience and does not guarantee employment, interview selection or recruiter approval. Users should review the generated CV before sending it to employers.</p>
-        <p>Anicade Tech branding and website links belong to Anicade Tech. Visit <a href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">www.anicadetech.xyz</a> for company information.</p>
+  <!-- ── TEMPLATES ─────────────────────────────────────────── -->
+  <section class="tab-panel gallery-panel" id="templates-panel">
+    <p class="eyebrow">CV Templates</p>
+    <h2>Choose your look</h2>
+    <p>Select a template style and accent colour, then head to the Builder to fill in your details.</p>
+    <div class="template-grid" id="template-grid"></div>
+  </section>
 
-        <h2>Privacy Policy</h2>
-        <p>This version processes CV information in the browser. The Recent and Storage feature is marked as coming soon and this page does not upload CV entries to a backend service.</p>
-        <p>When storage features are introduced, users should be told what data is saved, where it is saved, how long it is retained and how deletion requests are handled.</p>
-        <p>Do not enter sensitive information that is not needed for a job application, such as passwords, bank details or national identity numbers.</p>
-      </div>
-    </section>
-  </main>
-
-  <template id="experience-template">
-    <div class="repeat-item" data-kind="experience">
-      <button class="remove-button" type="button" aria-label="Remove role">Remove</button>
-      <div class="form-grid">
-        <label>Job title <input data-field="role" placeholder="Sales Assistant"></label>
-        <label>Company <input data-field="company" placeholder="ABC Ltd"></label>
-        <label>Dates <input data-field="dates" placeholder="Jan 2022 - Present"></label>
-        <label>Location <input data-field="place" placeholder="Kabwe, Zambia"></label>
-      </div>
-      <label class="full">Responsibilities and achievements
-        <textarea data-field="details" rows="4" placeholder="Managed customer enquiries&#10;Improved monthly sales by 18%&#10;Prepared reports and coordinated stock records"></textarea>
-      </label>
+  <!-- ── RECENT ────────────────────────────────────────────── -->
+  <section class="tab-panel recent-panel" id="recent-panel">
+    <p class="eyebrow">Saved CVs</p>
+    <h2>Recent CVs</h2>
+    <p>Save your current CV data by name and reload it any time — stored locally in your browser.</p>
+    <div class="save-row">
+      <input class="save-name-input" id="save-name-input" placeholder="Give this CV a name…">
+      <button class="save-cv-btn" id="save-cv-btn">Save current CV</button>
     </div>
-  </template>
+    <div class="recent-grid" id="recent-grid"></div>
+  </section>
 
-  <template id="education-template">
-    <div class="repeat-item" data-kind="education">
-      <button class="remove-button" type="button" aria-label="Remove education">Remove</button>
-      <div class="form-grid">
-        <label>Qualification <input data-field="qualification" placeholder="Diploma in Business Administration"></label>
-        <label>Institution <input data-field="institution" placeholder="University or college"></label>
-        <label>Dates <input data-field="dates" placeholder="2019 - 2021"></label>
-        <label>Location <input data-field="place" placeholder="Lusaka, Zambia"></label>
-      </div>
-      <label class="full">Notes
-        <textarea data-field="notes" rows="3" placeholder="Relevant modules, distinctions, research, leadership roles"></textarea>
-      </label>
+  <!-- ── LEGAL ─────────────────────────────────────────────── -->
+  <section class="tab-panel legal-panel" id="legal-panel">
+    <div class="legal-card">
+      <p class="eyebrow">Anicade CV Generator</p>
+      <h2>Terms of Use</h2>
+      <p>This tool helps users create CV documents from the information they provide. Users are responsible for ensuring that all content is truthful, accurate and appropriate for job applications.</p>
+      <p>The generator is provided for convenience and does not guarantee employment, interview selection or recruiter approval. Always review the generated CV before sending it to employers.</p>
+      <p>ANICADE Tech branding belongs to ANICADE Tech. Visit <a href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">www.anicadetech.xyz</a> for company information.</p>
+      <h2>Privacy Policy</h2>
+      <p>All CV information is processed entirely in your browser. No data is sent to any server. The Recent CVs feature uses your browser's localStorage — data stays on your device and is never uploaded.</p>
+      <p>Do not enter sensitive information not needed for a job application, such as passwords, bank details or national identity numbers.</p>
+      <h2>AI Assistant</h2>
+      <p>The AI Assistant uses the Anthropic Claude API to help polish your CV text. Your prompts and CV content snippets are sent to the API for this purpose. Do not include passwords or highly sensitive personal data in AI-enhanced fields.</p>
     </div>
-  </template>
+  </section>
 
-  <script src="app.js"></script>
+</main>
+
+<!-- AI FAB + PANEL -->
+<button class="ai-fab" id="ai-fab" aria-label="Open AI Assistant" title="AI Writing Assistant">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+  </svg>
+</button>
+<div class="ai-panel" id="ai-panel">
+  <div class="ai-panel-head">
+    <h3>ANICADE AI — Writing Assistant</h3>
+    <button class="ai-close" id="ai-close">✕</button>
+  </div>
+  <div class="ai-messages" id="ai-messages">
+    <div class="ai-msg ai">Hey! I'm your CV writing assistant. Ask me to improve your summary, suggest bullet points, tailor your CV for a specific role, or anything else.</div>
+  </div>
+  <div class="ai-input-row">
+    <input class="ai-input" id="ai-input" placeholder="Ask me anything about your CV…" autocomplete="off">
+    <button class="ai-send" id="ai-send">Send</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- TEMPLATES -->
+<template id="experience-template">
+  <div class="repeat-item" data-kind="experience">
+    <button class="remove-btn" type="button" aria-label="Remove role">Remove</button>
+    <div class="form-grid">
+      <label>Job title <input data-field="role" placeholder="Sales Assistant"></label>
+      <label>Company <input data-field="company" placeholder="ABC Ltd"></label>
+      <label>Dates <input data-field="dates" placeholder="Jan 2022 – Present"></label>
+      <label>Location <input data-field="place" placeholder="Kabwe, Zambia"></label>
+    </div>
+    <label class="full" style="margin-top:10px">Responsibilities & achievements
+      <textarea data-field="details" rows="4" placeholder="Managed customer enquiries&#10;Improved monthly sales by 18%&#10;Prepared reports and coordinated stock records"></textarea>
+    </label>
+    <div class="ai-enhance-row">
+      <button type="button" class="ai-enhance-btn" data-repeat-field="details">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        AI Enhance bullet points
+      </button>
+    </div>
+  </div>
+</template>
+
+<template id="education-template">
+  <div class="repeat-item" data-kind="education">
+    <button class="remove-btn" type="button" aria-label="Remove education">Remove</button>
+    <div class="form-grid">
+      <label>Qualification <input data-field="qualification" placeholder="Diploma in Business Administration"></label>
+      <label>Institution <input data-field="institution" placeholder="University or college name"></label>
+      <label>Dates <input data-field="dates" placeholder="2019 – 2021"></label>
+      <label>Location <input data-field="place" placeholder="Lusaka, Zambia"></label>
+    </div>
+    <label class="full" style="margin-top:10px">Notes
+      <textarea data-field="notes" rows="3" placeholder="Relevant modules, distinctions, research, leadership roles"></textarea>
+    </label>
+  </div>
+</template>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   ANICADE.CV — app.js (inlined)
+   ════════════════════════════════════════════════════════════ */
+
+/* ── TEMPLATE DEFINITIONS ─────────────────────────────────── */
+const TEMPLATES = [
+  {
+    id: "modern",
+    name: "Modern Two-Column",
+    desc: "Clean sidebar layout with skills pills and accent colours. Great for creative and tech roles.",
+    class: "cv-modern",
+    accents: [
+      { label: "Teal",     hex: "#0f766e" },
+      { label: "Blue",     hex: "#1d4ed8" },
+      { label: "Copper",   hex: "#7c2d12" },
+      { label: "Graphite", hex: "#374151" },
+    ]
+  },
+  {
+    id: "classic",
+    name: "Classic Single-Column",
+    desc: "Traditional single-column format. Universally accepted across industries.",
+    class: "cv-classic",
+    accents: [
+      { label: "Navy",     hex: "#1e3a5f" },
+      { label: "Teal",     hex: "#0f766e" },
+      { label: "Graphite", hex: "#374151" },
+      { label: "Plum",     hex: "#6b21a8" },
+    ]
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    desc: "Dark header band with a commanding presence. Perfect for senior and leadership roles.",
+    class: "cv-executive",
+    accents: [
+      { label: "Gold",     hex: "#b45309" },
+      { label: "Teal",     hex: "#0f766e" },
+      { label: "Blue",     hex: "#1d4ed8" },
+      { label: "Rose",     hex: "#9f1239" },
+    ]
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    desc: "Ultra-clean design with hairline rules. Lets your content do the talking.",
+    class: "cv-minimal",
+    accents: [
+      { label: "Teal",     hex: "#0f766e" },
+      { label: "Slate",    hex: "#475569" },
+      { label: "Indigo",   hex: "#3730a3" },
+      { label: "Rose",     hex: "#9f1239" },
+    ]
+  }
+];
+
+let currentTemplate = TEMPLATES[0];
+let currentAccent = TEMPLATES[0].accents[0].hex;
+
+/* ── TAB SWITCHING ────────────────────────────────────────── */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    const panel = document.getElementById(tab + "-panel");
+    if (panel) panel.classList.add("active");
+    if (tab === "recent") renderRecent();
+  });
+});
+
+/* ── REPEAT ITEMS ─────────────────────────────────────────── */
+document.querySelectorAll("[data-add]").forEach(btn => {
+  btn.addEventListener("click", () => addRepeat(btn.dataset.add));
+});
+
+function addRepeat(kind) {
+  const tpl = document.getElementById(kind + "-template");
+  const clone = tpl.content.cloneNode(true);
+  const item = clone.querySelector(".repeat-item");
+  item.querySelector(".remove-btn").addEventListener("click", () => {
+    item.remove(); updatePreview();
+  });
+  const aiBtn = item.querySelector("[data-repeat-field]");
+  if (aiBtn) {
+    aiBtn.addEventListener("click", () => {
+      const field = aiBtn.dataset.repeatField;
+      const ta = item.querySelector("[data-field='" + field + "']");
+      aiEnhanceField(ta, "bullet points for a CV work experience entry");
+    });
+  }
+  item.querySelectorAll("input, textarea").forEach(el => {
+    el.addEventListener("input", updatePreview);
+  });
+  document.getElementById(kind + "-list").appendChild(item);
+}
+
+/* ── PROGRESS METER ───────────────────────────────────────── */
+const TRACKED = ["fullName","targetRole","email","phone","location","summary","skills"];
+function updateCompletion() {
+  const form = document.getElementById("cv-form");
+  let filled = 0;
+  TRACKED.forEach(n => {
+    const el = form.elements[n];
+    if (el && el.value.trim()) filled++;
+  });
+  const expItems = document.querySelectorAll("#experience-list .repeat-item");
+  if (expItems.length > 0) filled++;
+  const pct = Math.round((filled / (TRACKED.length + 1)) * 100);
+  document.getElementById("completion-label").textContent = pct + "%";
+  document.getElementById("completion-bar").style.width = pct + "%";
+}
+
+/* ── PREVIEW BUILDER ──────────────────────────────────────── */
+function getFormData() {
+  const form = document.getElementById("cv-form");
+  const d = {};
+  new FormData(form).forEach((v,k) => d[k] = v.trim());
+  d.experience = [];
+  document.querySelectorAll("#experience-list .repeat-item").forEach(item => {
+    const obj = {};
+    item.querySelectorAll("[data-field]").forEach(el => obj[el.dataset.field] = el.value.trim());
+    d.experience.push(obj);
+  });
+  d.education = [];
+  document.querySelectorAll("#education-list .repeat-item").forEach(item => {
+    const obj = {};
+    item.querySelectorAll("[data-field]").forEach(el => obj[el.dataset.field] = el.value.trim());
+    d.education.push(obj);
+  });
+  return d;
+}
+
+function detailLines(str) {
+  if (!str) return [];
+  return str.split("\n").map(l => l.trim()).filter(Boolean);
+}
+
+function escHtml(str) {
+  return String(str || "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function initials(name) {
+  return (name || "?").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+}
+
+/* contact row helper */
+function contactRow(icon, text) {
+  if (!text) return "";
+  return `<div class="cv-contact-item">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">${icon}</svg>
+    <span>${escHtml(text)}</span>
+  </div>`;
+}
+const ICONS = {
+  email: '<path d="M4 4h16v16H4z" stroke="none"/><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.61 19 19.45 19.45 0 0 1 5 12.39a19.79 19.79 0 0 1-2.92-8.18A2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  loc:   '<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  web:   '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+};
+
+/* ---- MODERN TEMPLATE ---- */
+function buildModern(d) {
+  const skills = d.skills ? d.skills.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  const sidebar = `
+    <div class="cv-sidebar">
+      <div class="cv-avatar">${escHtml(initials(d.fullName))}</div>
+      <div class="cv-name">${escHtml(d.fullName||"Your Name")}</div>
+      <div class="cv-role">${escHtml(d.targetRole||"Your Role")}</div>
+      <div class="cv-section">
+        <h3>Contact</h3>
+        ${contactRow(ICONS.email, d.email)}
+        ${contactRow(ICONS.phone, d.phone)}
+        ${contactRow(ICONS.loc,   d.location)}
+        ${contactRow(ICONS.web,   d.portfolio)}
+      </div>
+      ${skills.length ? `<div class="cv-section"><h3>Skills</h3>
+        ${skills.map(s=>`<span class="cv-skill-pill">${escHtml(s)}</span>`).join("")}
+      </div>` : ""}
+      ${d.languages ? `<div class="cv-section"><h3>Languages</h3>
+        <ul class="cv-list">${d.languages.split(",").map(l=>`<li>${escHtml(l.trim())}</li>`).join("")}</ul>
+      </div>` : ""}
+      ${d.availability ? `<div class="cv-section"><h3>Availability</h3><p>${escHtml(d.availability)}</p></div>` : ""}
+      ${d.nationality  ? `<div class="cv-section"><h3>Nationality</h3><p>${escHtml(d.nationality)}</p></div>` : ""}
+    </div>`;
+
+  const expHtml = d.experience.map(e => `<div class="cv-item">
+    <div class="cv-item-role">${escHtml(e.role||"Role")}</div>
+    <div class="cv-item h4" style="font-size:13px;font-weight:700;color:#111827">${escHtml(e.company||"Company")}</div>
+    <div class="cv-meta">${escHtml(e.dates||"")}${e.place ? " &bull; " + escHtml(e.place) : ""}</div>
+    ${e.details ? `<ul class="cv-list" style="margin-top:8px;padding-left:16px;list-style:disc">${detailLines(e.details).map(l=>`<li>${escHtml(l)}</li>`).join("")}</ul>` : ""}
+  </div>`).join("");
+
+  const eduHtml = d.education.map(e => `<div class="cv-item">
+    <div style="font-size:14px;font-weight:700;color:#111827">${escHtml(e.qualification||"Qualification")}</div>
+    <div style="font-size:13px;color:#374151">${escHtml(e.institution||"")}</div>
+    <div class="cv-meta">${escHtml(e.dates||"")}${e.place ? " &bull; " + escHtml(e.place) : ""}</div>
+    ${e.notes ? `<p style="font-size:12px;color:#6b7280;margin:4px 0 0">${escHtml(e.notes)}</p>` : ""}
+  </div>`).join("");
+
+  const certLines  = detailLines(d.certifications).map(l=>`<li>${escHtml(l)}</li>`).join("");
+  const projLines  = detailLines(d.projects).map(l=>`<li>${escHtml(l)}</li>`).join("");
+  const awardLines = detailLines(d.awards).map(l=>`<li>${escHtml(l)}</li>`).join("");
+
+  const main = `
+    <div class="cv-main">
+      ${d.summary ? `<div class="cv-section"><h3>Professional Profile</h3><p>${escHtml(d.summary)}</p></div>` : ""}
+      ${d.experience.length ? `<div class="cv-section"><h3>Work Experience</h3>${expHtml}</div>` : ""}
+      ${d.education.length  ? `<div class="cv-section"><h3>Education</h3>${eduHtml}</div>` : ""}
+      ${projLines  ? `<div class="cv-section"><h3>Projects</h3><ul class="cv-list" style="padding-left:16px;list-style:disc">${projLines}</ul></div>` : ""}
+      ${certLines  ? `<div class="cv-section"><h3>Certifications</h3><ul class="cv-list" style="padding-left:16px;list-style:disc">${certLines}</ul></div>` : ""}
+      ${awardLines ? `<div class="cv-section"><h3>Awards & Achievements</h3><ul class="cv-list" style="padding-left:16px;list-style:disc">${awardLines}</ul></div>` : ""}
+      ${d.references ? `<div class="cv-section"><h3>References</h3><p>${escHtml(d.references)}</p></div>` : ""}
+      <div class="cv-footer-note">CV generated with ANICADE.CV — anicadetech.xyz</div>
+    </div>`;
+
+  return `<div class="cv-page">${sidebar}${main}</div>`;
+}
+
+/* ---- CLASSIC TEMPLATE ---- */
+function buildClassic(d) {
+  const skills = d.skills ? d.skills.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  const expHtml = d.experience.map(e => `<div class="cv-item">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div style="font-size:14px;font-weight:700;color:#111827">${escHtml(e.role||"Role")} — ${escHtml(e.company||"Company")}</div>
+      <div class="cv-meta">${escHtml(e.dates||"")}</div>
+    </div>
+    ${e.place ? `<div class="cv-meta" style="margin-bottom:6px">${escHtml(e.place)}</div>` : ""}
+    ${e.details ? `<ul style="margin:6px 0 0 18px;padding:0;list-style:disc">${detailLines(e.details).map(l=>`<li style="font-size:12.5px;color:#374151;margin-bottom:3px">${escHtml(l)}</li>`).join("")}</ul>` : ""}
+  </div>`).join("");
+
+  const eduHtml = d.education.map(e => `<div class="cv-item">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div style="font-size:14px;font-weight:700;color:#111827">${escHtml(e.qualification||"Qualification")}, ${escHtml(e.institution||"")}</div>
+      <div class="cv-meta">${escHtml(e.dates||"")}</div>
+    </div>
+    ${e.notes ? `<p style="font-size:12px;color:#6b7280;margin:4px 0 0">${escHtml(e.notes)}</p>` : ""}
+  </div>`).join("");
+
+  const contacts = [d.email, d.phone, d.location, d.portfolio].filter(Boolean).map(c => `<span style="font-size:12.5px;color:#4b5563">${escHtml(c)}</span>`).join(" &nbsp;|&nbsp; ");
+  const certLines  = detailLines(d.certifications).map(l=>`<li>${escHtml(l)}</li>`).join("");
+  const projLines  = detailLines(d.projects).map(l=>`<li>${escHtml(l)}</li>`).join("");
+  const awardLines = detailLines(d.awards).map(l=>`<li>${escHtml(l)}</li>`).join("");
+
+  return `<div class="cv-page" style="display:block;padding:40px 52px">
+    <div style="border-bottom:3px solid var(--cv-accent);padding-bottom:18px;margin-bottom:22px">
+      <div style="font-size:34px;font-weight:800;color:#111827;font-family:var(--cv-font)">${escHtml(d.fullName||"Your Name")}</div>
+      <div style="font-size:14px;font-weight:800;color:var(--cv-accent);text-transform:uppercase;letter-spacing:.8px;margin:4px 0 10px">${escHtml(d.targetRole||"")}</div>
+      <div>${contacts}</div>
+    </div>
+    ${d.summary ? `<div class="cv-section"><h3>${escHtml("Professional Profile")}</h3><p>${escHtml(d.summary)}</p></div>` : ""}
+    ${skills.length ? `<div class="cv-section"><h3>Skills</h3><p>${skills.map(s=>`<span class="cv-skill-pill">${escHtml(s)}</span>`).join(" ")}</p></div>` : ""}
+    ${d.experience.length ? `<div class="cv-section"><h3>Work Experience</h3>${expHtml}</div>` : ""}
+    ${d.education.length  ? `<div class="cv-section"><h3>Education</h3>${eduHtml}</div>` : ""}
+    ${projLines  ? `<div class="cv-section"><h3>Projects</h3><ul style="margin:0 0 0 18px;padding:0;list-style:disc">${projLines}</ul></div>` : ""}
+    ${certLines  ? `<div class="cv-section"><h3>Certifications</h3><ul style="margin:0 0 0 18px;padding:0;list-style:disc">${certLines}</ul></div>` : ""}
+    ${awardLines ? `<div class="cv-section"><h3>Awards & Achievements</h3><ul style="margin:0 0 0 18px;padding:0;list-style:disc">${awardLines}</ul></div>` : ""}
+    ${d.languages||d.availability||d.nationality ? `<div class="cv-section"><h3>Additional Information</h3>
+      ${d.languages ? `<p><strong>Languages:</strong> ${escHtml(d.languages)}</p>` : ""}
+      ${d.availability ? `<p><strong>Availability:</strong> ${escHtml(d.availability)}</p>` : ""}
+      ${d.nationality ? `<p><strong>Nationality:</strong> ${escHtml(d.nationality)}</p>` : ""}
+    </div>` : ""}
+    ${d.references ? `<div class="cv-section"><h3>References</h3><p>${escHtml(d.references)}</p></div>` : ""}
+    <div class="cv-footer-note">CV generated with ANICADE.CV — anicadetech.xyz</div>
+  </div>`;
+}
+
+/* ---- EXECUTIVE TEMPLATE ---- */
+function buildExecutive(d) {
+  const skills = d.skills ? d.skills.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  const expHtml = d.experience.map(e => `<div class="cv-item">
+    <div style="font-size:14px;font-weight:700;color:#111827">${escHtml(e.role||"Role")}</div>
+    <div style="font-size:13px;font-weight:600;color:var(--cv-accent)">${escHtml(e.company||"")}</div>
+    <div class="cv-meta" style="margin-bottom:6px">${escHtml(e.dates||"")}${e.place ? " · "+escHtml(e.place):""}</div>
+    ${e.details ? `<ul style="margin:6px 0 0 16px;padding:0;list-style:disc">${detailLines(e.details).map(l=>`<li style="font-size:12.5px;color:#374151;margin-bottom:3px">${escHtml(l)}</li>`).join("")}</ul>` : ""}
+  </div>`).join("");
+  const eduHtml = d.education.map(e => `<div class="cv-item">
+    <div style="font-size:13px;font-weight:700;color:#111827">${escHtml(e.qualification||"Qualification")}</div>
+    <div style="font-size:12px;color:#4b5563">${escHtml(e.institution||"")}</div>
+    <div class="cv-meta">${escHtml(e.dates||"")}</div>
+  </div>`).join("");
+  const certLines  = detailLines(d.certifications).map(l=>`<li style="font-size:12px;margin-bottom:4px">${escHtml(l)}</li>`).join("");
+  const awardLines = detailLines(d.awards).map(l=>`<li style="font-size:12px;margin-bottom:4px">${escHtml(l)}</li>`).join("");
+  const contacts = [
+    d.email ? `<span style="font-size:12px;color:rgba(255,255,255,.75)">${escHtml(d.email)}</span>` : "",
+    d.phone ? `<span style="font-size:12px;color:rgba(255,255,255,.75)">${escHtml(d.phone)}</span>` : "",
+    d.location ? `<span style="font-size:12px;color:rgba(255,255,255,.75)">${escHtml(d.location)}</span>` : "",
+    d.portfolio ? `<span style="font-size:12px;color:rgba(255,255,255,.75)">${escHtml(d.portfolio)}</span>` : "",
+  ].filter(Boolean).join(" &nbsp;|&nbsp; ");
+
+  return `<div class="cv-page">
+    <div style="background:#1a2332;padding:34px 44px">
+      <div style="font-size:32px;font-weight:800;color:white;font-family:var(--cv-font);margin-bottom:4px">${escHtml(d.fullName||"Your Name")}</div>
+      <div style="font-size:13px;font-weight:800;color:var(--cv-accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px">${escHtml(d.targetRole||"")}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px 20px">${contacts}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:34% 66%">
+      <div style="padding:28px 22px 28px 44px;background:#f7f9fb;border-right:1px solid #e5e7eb">
+        ${skills.length ? `<div class="cv-section"><h3>Core Competencies</h3>${skills.map(s=>`<span class="cv-skill-pill">${escHtml(s)}</span>`).join(" ")}</div>` : ""}
+        ${d.education.length ? `<div class="cv-section"><h3>Education</h3>${eduHtml}</div>` : ""}
+        ${certLines ? `<div class="cv-section"><h3>Certifications</h3><ul style="margin:0 0 0 16px;padding:0;list-style:disc">${certLines}</ul></div>` : ""}
+        ${awardLines ? `<div class="cv-section"><h3>Awards</h3><ul style="margin:0 0 0 16px;padding:0;list-style:disc">${awardLines}</ul></div>` : ""}
+        ${d.languages ? `<div class="cv-section"><h3>Languages</h3><p>${escHtml(d.languages)}</p></div>` : ""}
+        ${d.availability ? `<div class="cv-section"><h3>Availability</h3><p>${escHtml(d.availability)}</p></div>` : ""}
+      </div>
+      <div style="padding:28px 36px 28px 28px">
+        ${d.summary ? `<div class="cv-section"><h3>Executive Summary</h3><p style="font-size:13px;line-height:1.65;color:#374151">${escHtml(d.summary)}</p></div>` : ""}
+        ${d.experience.length ? `<div class="cv-section"><h3>Professional Experience</h3>${expHtml}</div>` : ""}
+        ${d.references ? `<div class="cv-section"><h3>References</h3><p style="font-size:12.5px;color:#374151">${escHtml(d.references)}</p></div>` : ""}
+        <div class="cv-footer-note">CV generated with ANICADE.CV — anicadetech.xyz</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---- MINIMAL TEMPLATE ---- */
+function buildMinimal(d) {
+  const skills = d.skills ? d.skills.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  const contacts = [d.email, d.phone, d.location, d.portfolio].filter(Boolean).map(c=>`<span style="font-size:12.5px;color:#6b7280">${escHtml(c)}</span>`).join(" &nbsp;·&nbsp; ");
+  const expHtml = d.experience.map(e => `<div class="cv-item">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+      <div style="font-size:14px;font-weight:700;color:#111827">${escHtml(e.role||"Role")}</div>
+      <div class="cv-meta">${escHtml(e.dates||"")}</div>
+    </div>
+    <div style="font-size:12.5px;color:var(--cv-accent);font-weight:600;margin-bottom:5px">${escHtml(e.company||"")}${e.place?" · "+escHtml(e.place):""}</div>
+    ${e.details ? `<ul style="margin:6px 0 0 16px;padding:0;list-style:disc">${detailLines(e.details).map(l=>`<li style="font-size:12.5px;color:#374151;margin-bottom:3px">${escHtml(l)}</li>`).join("")}</ul>` : ""}
+  </div>`).join("");
+  const eduHtml = d.education.map(e => `<div class="cv-item">
+    <div style="display:flex;justify-content:space-between">
+      <div style="font-size:14px;font-weight:700;color:#111827">${escHtml(e.qualification||"Qualification")}</div>
+      <div class="cv-meta">${escHtml(e.dates||"")}</div>
+    </div>
+    <div style="font-size:12.5px;color:#6b7280">${escHtml(e.institution||"")}</div>
+  </div>`).join("");
+  const certLines  = detailLines(d.certifications).map(l=>`<li style="font-size:12px;margin-bottom:3px">${escHtml(l)}</li>`).join("");
+  const projLines  = detailLines(d.projects).map(l=>`<li style="font-size:12px;margin-bottom:3px">${escHtml(l)}</li>`).join("");
+  const awardLines = detailLines(d.awards).map(l=>`<li style="font-size:12px;margin-bottom:3px">${escHtml(l)}</li>`).join("");
+
+  return `<div class="cv-page" style="display:block;padding:48px 56px">
+    <div style="border-bottom:1px solid #e5e7eb;padding-bottom:22px;margin-bottom:28px">
+      <div style="font-size:36px;font-weight:800;color:#111827;letter-spacing:-1px;font-family:var(--cv-font)">${escHtml(d.fullName||"Your Name")}</div>
+      <div style="font-size:13px;font-weight:800;color:var(--cv-accent);text-transform:uppercase;letter-spacing:.8px;margin:5px 0 12px">${escHtml(d.targetRole||"")}</div>
+      <div>${contacts}</div>
+    </div>
+    ${d.summary ? `<div class="cv-section"><h3>Profile</h3><p style="font-size:13px;line-height:1.65;color:#374151;margin:0">${escHtml(d.summary)}</p></div>` : ""}
+    ${skills.length ? `<div class="cv-section"><h3>Skills</h3><div>${skills.map(s=>`<span class="cv-skill-pill">${escHtml(s)}</span>`).join(" ")}</div></div>` : ""}
+    ${d.experience.length ? `<div class="cv-section"><h3>Experience</h3>${expHtml}</div>` : ""}
+    ${d.education.length  ? `<div class="cv-section"><h3>Education</h3>${eduHtml}</div>` : ""}
+    ${projLines  ? `<div class="cv-section"><h3>Projects</h3><ul style="margin:0 0 0 16px;padding:0;list-style:disc">${projLines}</ul></div>` : ""}
+    ${certLines  ? `<div class="cv-section"><h3>Certifications</h3><ul style="margin:0 0 0 16px;padding:0;list-style:disc">${certLines}</ul></div>` : ""}
+    ${awardLines ? `<div class="cv-section"><h3>Awards</h3><ul style="margin:0 0 0 16px;padding:0;list-style:disc">${awardLines}</ul></div>` : ""}
+    ${d.languages||d.availability ? `<div class="cv-section"><h3>Additional</h3>
+      ${d.languages ? `<p style="margin:0 0 4px;font-size:12.5px;color:#374151"><strong>Languages:</strong> ${escHtml(d.languages)}</p>` : ""}
+      ${d.availability ? `<p style="margin:0;font-size:12.5px;color:#374151"><strong>Availability:</strong> ${escHtml(d.availability)}</p>` : ""}
+    </div>` : ""}
+    ${d.references ? `<div class="cv-section"><h3>References</h3><p style="font-size:12.5px;color:#374151;margin:0">${escHtml(d.references)}</p></div>` : ""}
+    <div class="cv-footer-note">CV generated with ANICADE.CV — anicadetech.xyz</div>
+  </div>`;
+}
+
+function updatePreview() {
+  const d = getFormData();
+  const preview = document.getElementById("cv-preview");
+  preview.className = "cv-document " + currentTemplate.class;
+  preview.style.setProperty("--cv-accent", currentAccent);
+  preview.style.setProperty("--cv-font", "'" + (d.cvFont || "Inter") + "'");
+
+  let html = "";
+  switch (currentTemplate.id) {
+    case "classic":   html = buildClassic(d);   break;
+    case "executive": html = buildExecutive(d); break;
+    case "minimal":   html = buildMinimal(d);   break;
+    default:          html = buildModern(d);     break;
+  }
+  preview.innerHTML = html;
+
+  const name = d.fullName || "";
+  const role = d.targetRole || "";
+  document.getElementById("preview-title").textContent =
+    name ? name + (role ? " — " + role : "") : "Your CV is taking shape";
+
+  updateCompletion();
+}
+
+/* live form events */
+document.getElementById("cv-form").addEventListener("input", updatePreview);
+
+/* ── TOOLBAR BUTTONS ──────────────────────────────────────── */
+document.getElementById("print-button").addEventListener("click", () => window.print());
+
+document.getElementById("clear-button").addEventListener("click", () => {
+  if (!confirm("Clear all form data?")) return;
+  document.getElementById("cv-form").reset();
+  document.getElementById("experience-list").innerHTML = "";
+  document.getElementById("education-list").innerHTML = "";
+  updatePreview();
+});
+
+document.getElementById("sample-button").addEventListener("click", () => {
+  const form = document.getElementById("cv-form");
+  const set = (n,v) => { if(form.elements[n]) form.elements[n].value = v; };
+  set("fullName",      "Mutale Chanda");
+  set("targetRole",    "Software Developer");
+  set("email",         "mutale.chanda@email.com");
+  set("phone",         "+260 977 123 456");
+  set("location",      "Lusaka, Zambia");
+  set("portfolio",     "https://linkedin.com/in/mutalechanda");
+  set("summary",       "Ambitious software developer with 4 years' experience building scalable web applications for Zambian SMEs and international clients. Proficient in JavaScript, Python and cloud deployment. Passionate about using technology to solve real-world problems across Africa.");
+  set("skills",        "JavaScript, Python, React, Node.js, REST APIs, PostgreSQL, Git, Docker, Figma");
+  set("projects",      "ANICADE Tech Platform — built multi-page web platform with JSONBin backend, EmailJS and PWA features\nZedMarket — e-commerce site for Zambian vendors with mobile-money payment integration");
+  set("certifications","AWS Cloud Practitioner, Amazon Web Services, 2023\nGoogle Analytics Certified, Google, 2022");
+  set("awards",        "Best Developer — ZICTA Digital Innovation Awards 2023\nTop Performer — Roan Antelope Ltd Q1 2022");
+  set("languages",     "English (Fluent), Bemba (Native), Nyanja (Conversational)");
+  set("availability",  "2 weeks notice");
+  set("references",    "Available on request");
+  set("nationality",   "Zambian");
+
+  document.getElementById("experience-list").innerHTML = "";
+  document.getElementById("education-list").innerHTML = "";
+
+  addRepeat("experience");
+  const expItem = document.querySelector("#experience-list .repeat-item");
+  expItem.querySelector("[data-field=role]").value    = "Lead Frontend Developer";
+  expItem.querySelector("[data-field=company]").value = "ANICADE Tech";
+  expItem.querySelector("[data-field=dates]").value   = "Jan 2022 – Present";
+  expItem.querySelector("[data-field=place]").value   = "Lusaka, Zambia";
+  expItem.querySelector("[data-field=details]").value =
+    "Led development of anicadetech.xyz from ground up using vanilla HTML/CSS/JS\nBuilt agent portal, admin dashboard and EmailJS-integrated application system\nIntegrated JSONBin as lightweight backend — 40% reduction in infrastructure costs\nMentored 2 junior developers in responsive design and API integration";
+
+  addRepeat("education");
+  const eduItem = document.querySelector("#education-list .repeat-item");
+  eduItem.querySelector("[data-field=qualification]").value = "Bachelor of Science in Computer Science";
+  eduItem.querySelector("[data-field=institution]").value   = "University of Zambia";
+  eduItem.querySelector("[data-field=dates]").value         = "2017 – 2021";
+  eduItem.querySelector("[data-field=place]").value         = "Lusaka, Zambia";
+  eduItem.querySelector("[data-field=notes]").value         = "Graduated with Merit. Final year project: Smart agricultural advisory system using ML.";
+
+  updatePreview();
+});
+
+document.getElementById("html-button").addEventListener("click", () => {
+  const d = getFormData();
+  const preview = document.getElementById("cv-preview").outerHTML;
+  const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(d.fullName||"CV")} — CV</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#e5e7eb;font-family:Inter,sans-serif;display:flex;justify-content:center;padding:40px 16px}
+.cv-document{--cv-accent:${currentAccent};--cv-font:'Inter'}
+${document.querySelector("style").textContent}
+</style></head><body>${preview}</body></html>`], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (d.fullName || "CV").replace(/\s+/g,"_") + "_CV.html";
+  a.click();
+  showToast("CV exported as HTML");
+});
+
+/* ── TEMPLATE GALLERY ─────────────────────────────────────── */
+function buildGallery() {
+  const grid = document.getElementById("template-grid");
+  grid.innerHTML = "";
+  TEMPLATES.forEach(tpl => {
+    const card = document.createElement("div");
+    card.className = "template-card" + (tpl.id === currentTemplate.id ? " selected" : "");
+    card.innerHTML = `
+      <div class="template-thumb">
+        <div class="template-thumb-inner" id="thumb-${tpl.id}"></div>
+      </div>
+      <div class="template-info">
+        <div class="template-name">${tpl.name}</div>
+        <div class="template-desc">${tpl.desc}</div>
+        <div class="template-accents" id="accents-${tpl.id}">
+          ${tpl.accents.map((a,i) => `<div class="accent-dot ${i===0&&tpl.id===currentTemplate.id?'active':''}" data-tpl="${tpl.id}" data-hex="${a.hex}" title="${a.label}" style="background:${a.hex}"></div>`).join("")}
+        </div>
+        <button class="select-template-btn ${tpl.id===currentTemplate.id?'selected-state':''}" data-tpl="${tpl.id}">
+          ${tpl.id===currentTemplate.id ? "Currently selected" : "Use this template"}
+        </button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  /* render mini previews */
+  setTimeout(() => {
+    const d = getFormData();
+    TEMPLATES.forEach(tpl => {
+      const thumb = document.getElementById("thumb-"+tpl.id);
+      if (!thumb) return;
+      const prev = document.createElement("div");
+      prev.className = "cv-document " + tpl.class;
+      prev.style.cssText = `--cv-accent:${tpl.accents[0].hex};--cv-font:'Inter';transform:scale(.38) translateX(-50%) translateY(-50%);transform-origin:0 0;position:absolute;top:50%;left:50%;width:210mm;pointer-events:none`;
+      let html = "";
+      switch (tpl.id) {
+        case "classic":   html = buildClassic(d);   break;
+        case "executive": html = buildExecutive(d); break;
+        case "minimal":   html = buildMinimal(d);   break;
+        default:          html = buildModern(d);     break;
+      }
+      prev.innerHTML = html;
+      thumb.innerHTML = "";
+      thumb.appendChild(prev);
+    });
+  }, 80);
+
+  /* accent clicks */
+  document.querySelectorAll(".accent-dot").forEach(dot => {
+    dot.addEventListener("click", e => {
+      e.stopPropagation();
+      const tplId = dot.dataset.tpl;
+      const hex   = dot.dataset.hex;
+      if (tplId === currentTemplate.id) {
+        currentAccent = hex;
+        document.querySelectorAll("#accents-"+tplId+" .accent-dot").forEach(d=>d.classList.remove("active"));
+        dot.classList.add("active");
+        updatePreview();
+      }
+    });
+  });
+
+  /* select buttons */
+  document.querySelectorAll(".select-template-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tpl = TEMPLATES.find(t => t.id === btn.dataset.tpl);
+      if (!tpl) return;
+      currentTemplate = tpl;
+      currentAccent   = tpl.accents[0].hex;
+      buildGallery();
+      updatePreview();
+      showToast("Template switched to " + tpl.name);
+    });
+  });
+}
+
+/* Rebuild gallery when tab is clicked */
+document.querySelector("[data-tab=templates]").addEventListener("click", () => {
+  setTimeout(buildGallery, 50);
+});
+
+/* ── RECENT CVs ───────────────────────────────────────────── */
+function savedCVs() {
+  try { return JSON.parse(localStorage.getItem("anicade_cvs") || "{}"); }
+  catch { return {}; }
+}
+function saveCVs(obj) {
+  localStorage.setItem("anicade_cvs", JSON.stringify(obj));
+}
+
+document.getElementById("save-cv-btn").addEventListener("click", () => {
+  const name = document.getElementById("save-name-input").value.trim();
+  if (!name) { showToast("Enter a name for this CV first"); return; }
+  const cvs = savedCVs();
+  cvs[name] = { data: getFormData(), template: currentTemplate.id, accent: currentAccent, saved: new Date().toLocaleDateString() };
+  saveCVs(cvs);
+  document.getElementById("save-name-input").value = "";
+  renderRecent();
+  showToast("CV saved: " + name);
+});
+
+function renderRecent() {
+  const grid = document.getElementById("recent-grid");
+  const cvs = savedCVs();
+  const keys = Object.keys(cvs);
+  if (!keys.length) {
+    grid.innerHTML = `<div class="empty-recent" style="grid-column:1/-1"><p>No saved CVs yet. Build a CV and save it with a name above.</p></div>`;
+    return;
+  }
+  grid.innerHTML = keys.map(k => {
+    const cv = cvs[k];
+    return `<div class="recent-card">
+      <h4>${escHtml(k)}</h4>
+      <div class="rc-meta">${escHtml(cv.data.fullName||"")} · ${escHtml(cv.data.targetRole||"")} · Saved ${escHtml(cv.saved||"")}</div>
+      <div class="recent-actions">
+        <button class="rc-load-btn" data-key="${escHtml(k)}">Load</button>
+        <button class="rc-del-btn" data-key="${escHtml(k)}">Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  grid.querySelectorAll(".rc-load-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cv = savedCVs()[btn.dataset.key];
+      if (!cv) return;
+      loadCVData(cv);
+      document.querySelector("[data-tab=builder]").click();
+      showToast("CV loaded: " + btn.dataset.key);
+    });
+  });
+  grid.querySelectorAll(".rc-del-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!confirm("Delete saved CV: " + btn.dataset.key + "?")) return;
+      const cvs = savedCVs();
+      delete cvs[btn.dataset.key];
+      saveCVs(cvs);
+      renderRecent();
+    });
+  });
+}
+
+function loadCVData(cv) {
+  const form = document.getElementById("cv-form");
+  const d = cv.data;
+  const set = (n,v) => { if(form.elements[n]) form.elements[n].value = v||""; };
+  ["fullName","targetRole","email","phone","location","portfolio","summary","skills","projects","certifications","awards","languages","availability","references","nationality"].forEach(k => set(k, d[k]));
+
+  document.getElementById("experience-list").innerHTML = "";
+  document.getElementById("education-list").innerHTML = "";
+  (d.experience||[]).forEach(e => {
+    addRepeat("experience");
+    const items = document.querySelectorAll("#experience-list .repeat-item");
+    const item = items[items.length-1];
+    Object.entries(e).forEach(([k,v]) => {
+      const el = item.querySelector("[data-field="+k+"]");
+      if (el) el.value = v;
+    });
+  });
+  (d.education||[]).forEach(e => {
+    addRepeat("education");
+    const items = document.querySelectorAll("#education-list .repeat-item");
+    const item = items[items.length-1];
+    Object.entries(e).forEach(([k,v]) => {
+      const el = item.querySelector("[data-field="+k+"]");
+      if (el) el.value = v;
+    });
+  });
+
+  const tpl = TEMPLATES.find(t => t.id === cv.template);
+  if (tpl) { currentTemplate = tpl; currentAccent = cv.accent || tpl.accents[0].hex; }
+  updatePreview();
+}
+
+/* ── AI ASSISTANT ─────────────────────────────────────────── */
+document.getElementById("ai-fab").addEventListener("click", () => {
+  document.getElementById("ai-panel").classList.toggle("open");
+});
+document.getElementById("ai-close").addEventListener("click", () => {
+  document.getElementById("ai-panel").classList.remove("open");
+});
+
+document.getElementById("ai-input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendAI(); }
+});
+document.getElementById("ai-send").addEventListener("click", sendAI);
+
+async function sendAI() {
+  const input = document.getElementById("ai-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = "";
+  appendAI("user", msg);
+  const loader = appendAI("ai", "Thinking…", true);
+
+  const d = getFormData();
+  const context = `The user is building a CV for the role: "${d.targetRole||"unspecified"}". Name: "${d.fullName||"unspecified"}". Skills: "${d.skills||"unspecified"}". Summary: "${d.summary||"not yet written"}". Please help them with their CV.`;
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: "You are a professional CV writing assistant integrated into ANICADE.CV, a Zambia-based CV generator. Help users write compelling, professional CV content. Be concise and actionable. " + context,
+        messages: buildAIHistory(msg)
+      })
+    });
+    const data = await res.json();
+    loader.remove();
+    const reply = data.content && data.content[0] && data.content[0].text || "Sorry, I could not get a response. Please try again.";
+    appendAI("ai", reply);
+  } catch(err) {
+    loader.remove();
+    appendAI("ai", "Connection error. Please check your internet and try again.");
+  }
+}
+
+let aiHistory = [];
+function buildAIHistory(newMsg) {
+  aiHistory.push({ role: "user", content: newMsg });
+  if (aiHistory.length > 10) aiHistory = aiHistory.slice(-10);
+  return aiHistory;
+}
+
+function appendAI(role, text, loading = false) {
+  const messages = document.getElementById("ai-messages");
+  const div = document.createElement("div");
+  div.className = "ai-msg " + role + (loading ? " loading" : "");
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  if (role === "ai" && !loading) aiHistory.push({ role: "assistant", content: text });
+  return div;
+}
+
+/* AI Enhance inline buttons */
+document.querySelectorAll(".ai-enhance-btn[data-field]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const fieldName = btn.dataset.field;
+    const ta = document.querySelector("[name='" + fieldName + "']");
+    aiEnhanceField(ta, fieldName === "summary" ? "professional CV summary paragraph" : "CV section");
+  });
+});
+
+async function aiEnhanceField(textarea, context) {
+  if (!textarea) return;
+  const original = textarea.value.trim();
+  if (!original) { showToast("Add some text first, then use AI Enhance"); return; }
+  const d = getFormData();
+  textarea.style.opacity = ".5";
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `Improve this ${context} for a ${d.targetRole||"professional"} CV. Make it punchy, specific and achievement-focused. Return ONLY the improved text, no explanation.\n\nOriginal:\n${original}`
+        }]
+      })
+    });
+    const data = await res.json();
+    const improved = data.content && data.content[0] && data.content[0].text;
+    if (improved) {
+      textarea.value = improved.trim();
+      updatePreview();
+      showToast("Text enhanced by AI");
+    }
+  } catch {
+    showToast("AI enhance failed — check connection");
+  }
+  textarea.style.opacity = "1";
+}
+
+/* ── TOAST ────────────────────────────────────────────────── */
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+/* ── INIT ─────────────────────────────────────────────────── */
+updatePreview();
+</script>
 </body>
 </html>
