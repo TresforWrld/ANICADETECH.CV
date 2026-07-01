@@ -323,6 +323,7 @@
     /* ai-enhance inline btn */
     .ai-enhance-row {
       display: flex; justify-content: flex-end; margin-top: 8px;
+      gap: 8px;
     }
     .ai-enhance-btn {
       display: inline-flex; align-items: center; gap: 6px;
@@ -337,6 +338,17 @@
     .ai-enhance-btn:active { transform: scale(.97); }
     .ai-enhance-btn svg { flex-shrink: 0; }
     .ai-enhance-btn[disabled] { opacity: .5; cursor: not-allowed; }
+    .spell-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 11px; border-radius: 6px; cursor: pointer;
+      border: 1px solid rgba(198,168,92,.35);
+      background: rgba(198,168,92,.07);
+      color: var(--gold); font-size: 12px; font-weight: 700;
+      transition: all .2s;
+      touch-action: manipulation;
+    }
+    .spell-btn:hover { background: rgba(198,168,92,.15); }
+    .spell-btn[disabled] { opacity: .5; cursor: not-allowed; }
 
     /* ── PREVIEW PANEL (RIGHT) ──────────────────────────────── */
     .preview-panel {
@@ -714,6 +726,12 @@
       margin: 0; font-size: 13px; font-weight: 700;
       color: var(--accent); font-family: "Orbitron", sans-serif;
     }
+    .ai-status {
+      font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .ai-status.online { color: var(--success); }
+    .ai-status.offline { color: var(--danger); }
     .ai-close {
       background: none; border: none; cursor: pointer;
       color: var(--muted); font-size: 18px; padding: 6px 8px;
@@ -728,6 +746,7 @@
     .ai-msg {
       max-width: 88%; padding: 10px 13px;
       border-radius: 10px; font-size: 13px; line-height: 1.55;
+      white-space: pre-wrap;
     }
     .ai-msg.user {
       align-self: flex-end;
@@ -742,6 +761,18 @@
       color: var(--text);
     }
     .ai-msg.ai.loading { color: var(--muted); font-style: italic; }
+    .ai-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 0 14px 10px;
+    }
+    .ai-suggestion-chip {
+      padding: 6px 10px; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(0,191,255,.25);
+      background: rgba(0,191,255,.06);
+      color: var(--accent); font-size: 11px; font-weight: 700;
+      touch-action: manipulation;
+    }
+    .ai-suggestion-chip:hover { background: rgba(0,191,255,.14); }
     .ai-input-row {
       display: flex; gap: 8px; padding: 12px;
       border-top: 1px solid rgba(0,191,255,.12);
@@ -779,6 +810,88 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* ── PROMO / AD OVERLAY ─────────────────────────────────── */
+    .promo-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      display: none; align-items: center; justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(0,191,255,.22), transparent 34rem),
+        radial-gradient(circle at 80% 20%, rgba(198,168,92,.18), transparent 30rem),
+        rgba(4,10,18,.97);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    .promo-overlay.open { display: flex; }
+    .promo-card {
+      position: relative;
+      width: min(520px, 100%);
+      padding: 40px 32px 32px;
+      border: 1px solid rgba(198,168,92,.35);
+      border-radius: 18px;
+      background: var(--panel-strong);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      text-align: center;
+      cursor: default;
+    }
+    .promo-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      color: var(--muted); cursor: pointer;
+      font-size: 15px; display: grid; place-items: center;
+      touch-action: manipulation;
+    }
+    .promo-close:hover { color: var(--text); }
+    .promo-logo {
+      width: 76px; height: 76px; border-radius: 20px;
+      object-fit: cover; margin: 0 auto 16px;
+      border: 1px solid rgba(198,168,92,.4);
+      box-shadow: 0 0 30px rgba(0,191,255,.25);
+    }
+    .promo-eyebrow {
+      color: var(--accent); font-family: "Orbitron", sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 2.4px;
+      text-transform: uppercase; margin: 0 0 8px;
+    }
+    .promo-title {
+      font-family: "Orbitron", sans-serif; color: var(--gold);
+      font-size: 22px; margin: 0 0 10px;
+    }
+    .promo-sub { color: var(--muted); font-size: 13.5px; line-height: 1.6; margin: 0 0 22px; }
+    .promo-services {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin: 0 0 26px; text-align: left;
+    }
+    .promo-service {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      color: var(--text); font-size: 12px; font-weight: 700;
+    }
+    .promo-service svg { flex-shrink: 0; color: var(--accent); }
+    .promo-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 9px; cursor: pointer;
+      border: none; text-decoration: none;
+      background: linear-gradient(135deg, var(--gold), var(--accent));
+      color: #0b1c2d; font-weight: 900; font-size: 13px;
+      letter-spacing: .3px;
+      touch-action: manipulation;
+    }
+    .promo-timer {
+      margin-top: 16px; height: 3px; border-radius: 999px;
+      background: rgba(255,255,255,.08); overflow: hidden;
+    }
+    .promo-timer-fill {
+      display: block; height: 100%; width: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+      transform-origin: left; animation: promo-countdown 5s linear forwards;
+    }
+    @keyframes promo-countdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
     /* ── RESPONSIVE ─────────────────────────────────────────── */
     @media (max-width: 1180px) {
       .app-shell.active { grid-template-columns: 1fr; }
@@ -803,13 +916,15 @@
       .draft-banner-actions button { flex: 1; }
       .ai-fab { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px; }
       .ai-panel { right: 16px; left: 16px; width: auto; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+      .promo-services { grid-template-columns: 1fr; }
+      .promo-card { padding: 32px 20px 24px; }
     }
 
     /* ── PRINT ──────────────────────────────────────────────── */
     @media print {
       body { background: #fff; }
       .top-bar, .control-panel, .preview-toolbar, .rings-bg,
-      .ai-fab, .ai-panel, .toast, .gallery-panel, .recent-panel, .legal-panel, .draft-banner { display: none !important; }
+      .ai-fab, .ai-panel, .toast, .gallery-panel, .recent-panel, .legal-panel, .draft-banner, .promo-overlay { display: none !important; }
       .app-shell, .app-shell.active, .preview-panel, .cv-stage {
         display: block !important; padding: 0; margin: 0;
         max-height: none; overflow: visible;
@@ -849,10 +964,9 @@
       </div>
 
       <div class="draft-banner" id="draft-banner" hidden>
-        <span>We found a saved draft from your last visit. Would you like to restore it?</span>
+        <span id="draft-banner-text">Welcome back — your last draft was restored automatically.</span>
         <div class="draft-banner-actions">
-          <button type="button" class="restore-btn" id="restore-draft-btn">Restore draft</button>
-          <button type="button" class="discard-btn" id="discard-draft-btn">Discard</button>
+          <button type="button" class="discard-btn" id="discard-draft-btn">Start fresh</button>
         </div>
       </div>
 
@@ -874,11 +988,11 @@
           </summary>
           <div class="section-body">
             <div class="form-grid">
-              <label>Full name<span class="required-mark">*</span> <input name="fullName" placeholder="e.g. Mutale Chanda" required></label>
-              <label>Target role<span class="required-mark">*</span> <input name="targetRole" placeholder="e.g. Software Developer" required></label>
+              <label>Full name<span class="required-mark">*</span> <input name="fullName" placeholder="e.g. Mutale Chanda" required spellcheck="true"></label>
+              <label>Target role<span class="required-mark">*</span> <input name="targetRole" placeholder="e.g. Software Developer" required spellcheck="true"></label>
               <label>Email <input name="email" type="email" placeholder="you@example.com" inputmode="email" autocomplete="email"></label>
               <label>Phone <input name="phone" placeholder="+260 777 000 000" inputmode="tel" autocomplete="tel"></label>
-              <label>Location <input name="location" placeholder="Lusaka, Zambia"></label>
+              <label>Location <input name="location" placeholder="Lusaka, Zambia" spellcheck="true"></label>
               <label>Portfolio / LinkedIn <input name="portfolio" placeholder="https://linkedin.com/in/you"></label>
             </div>
           </div>
@@ -891,16 +1005,20 @@
           </summary>
           <div class="section-body">
             <label class="full">Summary
-              <textarea name="summary" rows="5" placeholder="A concise career summary showing your experience, strengths and the value you bring."></textarea>
+              <textarea name="summary" rows="5" placeholder="A concise career summary showing your experience, strengths and the value you bring." spellcheck="true"></textarea>
             </label>
             <div class="ai-enhance-row">
+              <button type="button" class="spell-btn" data-field="summary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                Spell Check
+              </button>
               <button type="button" class="ai-enhance-btn" data-field="summary">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                 AI Enhance
               </button>
             </div>
             <label class="full" style="margin-top:12px">Key skills
-              <textarea name="skills" rows="3" placeholder="Project management, customer support, Excel, sales, web development"></textarea>
+              <textarea name="skills" rows="3" placeholder="Project management, customer support, Excel, sales, web development" spellcheck="true"></textarea>
             </label>
           </div>
         </details>
@@ -940,19 +1058,23 @@
           </summary>
           <div class="section-body">
             <label class="full">Projects
-              <textarea name="projects" rows="4" placeholder="Project name — what you built, tools used, outcome."></textarea>
+              <textarea name="projects" rows="4" placeholder="Project name — what you built, tools used, outcome." spellcheck="true"></textarea>
             </label>
             <div class="ai-enhance-row">
+              <button type="button" class="spell-btn" data-field="projects">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                Spell Check
+              </button>
               <button type="button" class="ai-enhance-btn" data-field="projects">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                 AI Enhance
               </button>
             </div>
             <label class="full" style="margin-top:12px">Certifications
-              <textarea name="certifications" rows="3" placeholder="Certificate name, provider, year"></textarea>
+              <textarea name="certifications" rows="3" placeholder="Certificate name, provider, year" spellcheck="true"></textarea>
             </label>
             <label class="full" style="margin-top:12px">Awards or achievements
-              <textarea name="awards" rows="3" placeholder="Employee of the month, sales target exceeded, competition winner"></textarea>
+              <textarea name="awards" rows="3" placeholder="Employee of the month, sales target exceeded, competition winner" spellcheck="true"></textarea>
             </label>
           </div>
         </details>
@@ -1006,7 +1128,7 @@
   <section class="tab-panel recent-panel" id="recent-panel">
     <p class="eyebrow">Saved CVs</p>
     <h2>Recent CVs</h2>
-    <p>Save your current CV data by name and reload it any time — stored locally in your browser. Your in-progress CV is also auto-saved on this device as you type.</p>
+    <p>Save your current CV data by name and reload it any time — stored locally in your browser. Your in-progress CV is also auto-saved on this device as you type and restored automatically when you come back.</p>
     <div class="storage-warning" id="storage-warning" hidden>
       Your browser is blocking local storage (this can happen in private/incognito mode). Auto-save and named saves won't persist between visits — export your CV as HTML when you're done to avoid losing work.
     </div>
@@ -1026,10 +1148,10 @@
       <p>The generator is provided for convenience and does not guarantee employment, interview selection or recruiter approval. Always review the generated CV before sending it to employers.</p>
       <p>ANICADE Tech branding belongs to ANICADE Tech. Visit <a href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">www.anicadetech.xyz</a> for company information.</p>
       <h2>Privacy Policy</h2>
-      <p>All CV information is processed entirely in your browser. No data is sent to any server except when you use the AI Assistant. The Recent CVs and auto-save draft features use your browser's localStorage — data stays on your device and is never uploaded.</p>
+      <p>All CV information is processed entirely in your browser. The Recent CVs and auto-save draft features use your browser's localStorage — data stays on your device and is never uploaded to ANICADE Tech servers.</p>
       <p>Do not enter sensitive information not needed for a job application, such as passwords, bank details or national identity numbers.</p>
       <h2>AI Assistant</h2>
-      <p>The AI Assistant uses the Anthropic Claude API to help polish your CV text. Your prompts and CV content snippets are sent to the API for this purpose. Do not include passwords or highly sensitive personal data in AI-enhanced fields.</p>
+      <p>The AI Assistant and AI Enhance features use free, publicly available text-generation and language-checking services to help polish your CV text, plus a built-in offline knowledge base of common CV questions. Do not include passwords or highly sensitive personal data in AI-enhanced fields, since some requests are sent to third-party services over the network.</p>
     </div>
   </section>
 
@@ -1044,14 +1166,42 @@
 <div class="ai-panel" id="ai-panel">
   <div class="ai-panel-head">
     <h3>ANICADE AI — Writing Assistant</h3>
-    <button class="ai-close" id="ai-close" aria-label="Close AI Assistant">✕</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="ai-status" id="ai-status">checking…</span>
+      <button class="ai-close" id="ai-close" aria-label="Close AI Assistant">✕</button>
+    </div>
   </div>
   <div class="ai-messages" id="ai-messages">
-    <div class="ai-msg ai">Hey! I'm your CV writing assistant. Ask me to improve your summary, suggest bullet points, tailor your CV for a specific role, or anything else.</div>
+    <div class="ai-msg ai">Hey! I'm your CV writing assistant. Ask me to improve your summary, suggest bullet points, tailor your CV for a specific role, or anything else about job applications.</div>
   </div>
+  <div class="ai-suggestions" id="ai-suggestions"></div>
   <div class="ai-input-row">
     <input class="ai-input" id="ai-input" placeholder="Ask me anything about your CV…" autocomplete="off">
     <button class="ai-send" id="ai-send">Send</button>
+  </div>
+</div>
+
+<!-- PROMO OVERLAY -->
+<div class="promo-overlay" id="promo-overlay">
+  <div class="promo-card" id="promo-card">
+    <button class="promo-close" id="promo-close" aria-label="Close ad">✕</button>
+    <img class="promo-logo" src="https://i.imgur.com/RcBmjWM.png" alt="ANICADE Tech logo">
+    <p class="promo-eyebrow">ANICADE Tech</p>
+    <h2 class="promo-title">Need more than a CV?</h2>
+    <p class="promo-sub">ANICADE Tech builds the websites, apps and digital tools behind your next opportunity. Full-stack development, done in Zambia, for clients everywhere.</p>
+    <div class="promo-services">
+      <div class="promo-service"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Web & App Development</div>
+      <div class="promo-service"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg> AI-Powered Tools</div>
+      <div class="promo-service"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg> Business Portals & Admin Systems</div>
+      <div class="promo-service"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg> Streaming & Content Platforms</div>
+      <div class="promo-service"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg> Branding & UI/UX Design</div>
+      <div class="promo-service"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Hosting, Domains & Maintenance</div>
+    </div>
+    <a class="promo-cta" id="promo-cta" href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">
+      Visit anicadetech.xyz
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M8 7h9v9"/></svg>
+    </a>
+    <div class="promo-timer"><span class="promo-timer-fill" id="promo-timer-fill"></span></div>
   </div>
 </div>
 
@@ -1062,15 +1212,19 @@
   <div class="repeat-item" data-kind="experience">
     <button class="remove-btn" type="button" aria-label="Remove role">Remove</button>
     <div class="form-grid">
-      <label>Job title <input data-field="role" placeholder="Sales Assistant"></label>
+      <label>Job title <input data-field="role" placeholder="Sales Assistant" spellcheck="true"></label>
       <label>Company <input data-field="company" placeholder="ABC Ltd"></label>
       <label>Dates <input data-field="dates" placeholder="Jan 2022 – Present"></label>
       <label>Location <input data-field="place" placeholder="Kabwe, Zambia"></label>
     </div>
     <label class="full" style="margin-top:10px">Responsibilities & achievements
-      <textarea data-field="details" rows="4" placeholder="Managed customer enquiries&#10;Improved monthly sales by 18%&#10;Prepared reports and coordinated stock records"></textarea>
+      <textarea data-field="details" rows="4" placeholder="Managed customer enquiries&#10;Improved monthly sales by 18%&#10;Prepared reports and coordinated stock records" spellcheck="true"></textarea>
     </label>
     <div class="ai-enhance-row">
+      <button type="button" class="spell-btn" data-repeat-field="details">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        Spell Check
+      </button>
       <button type="button" class="ai-enhance-btn" data-repeat-field="details">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
         AI Enhance bullet points
@@ -1083,17 +1237,18 @@
   <div class="repeat-item" data-kind="education">
     <button class="remove-btn" type="button" aria-label="Remove education">Remove</button>
     <div class="form-grid">
-      <label>Qualification <input data-field="qualification" placeholder="Diploma in Business Administration"></label>
+      <label>Qualification <input data-field="qualification" placeholder="Diploma in Business Administration" spellcheck="true"></label>
       <label>Institution <input data-field="institution" placeholder="University or college name"></label>
       <label>Dates <input data-field="dates" placeholder="2019 – 2021"></label>
       <label>Location <input data-field="place" placeholder="Lusaka, Zambia"></label>
     </div>
     <label class="full" style="margin-top:10px">Notes
-      <textarea data-field="notes" rows="3" placeholder="Relevant modules, distinctions, research, leadership roles"></textarea>
+      <textarea data-field="notes" rows="3" placeholder="Relevant modules, distinctions, research, leadership roles" spellcheck="true"></textarea>
     </label>
   </div>
 </template>
 
+<script src="ai-logic.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════
    ANICADE.CV — app.js (inlined)
@@ -1208,12 +1363,20 @@ function addRepeat(kind) {
   item.querySelector(".remove-btn").addEventListener("click", () => {
     item.remove(); updatePreview();
   });
-  const aiBtn = item.querySelector("[data-repeat-field]");
+  const aiBtn = item.querySelector("[data-repeat-field].ai-enhance-btn");
   if (aiBtn) {
     aiBtn.addEventListener("click", () => {
       const field = aiBtn.dataset.repeatField;
       const ta = item.querySelector("[data-field='" + field + "']");
       aiEnhanceField(ta, "bullet points for a CV work experience entry");
+    });
+  }
+  const spellBtn = item.querySelector("[data-repeat-field].spell-btn");
+  if (spellBtn) {
+    spellBtn.addEventListener("click", () => {
+      const field = spellBtn.dataset.repeatField;
+      const ta = item.querySelector("[data-field='" + field + "']");
+      runSpellCheck(ta, spellBtn);
     });
   }
   item.querySelectorAll("input, textarea").forEach(el => {
@@ -1716,7 +1879,7 @@ document.getElementById("template-grid").addEventListener("click", (e) => {
 let draftSaveTimer = null;
 function scheduleDraftSave() {
   clearTimeout(draftSaveTimer);
-  draftSaveTimer = setTimeout(saveDraft, 600);
+  draftSaveTimer = setTimeout(saveDraft, 500);
 }
 function saveDraft() {
   const payload = {
@@ -1733,33 +1896,30 @@ function draftHasContent(data) {
     (data.experience && data.experience.length) ||
     (data.education && data.education.length));
 }
+/* Restores any saved draft automatically on load, so refreshing the page
+   or closing the tab never wipes out what the user typed. */
 function checkForDraft() {
   const raw = safeGetItem(DRAFT_KEY);
   if (!raw) return;
   try {
     const parsed = JSON.parse(raw);
     if (draftHasContent(parsed.data)) {
+      const tpl = TEMPLATES.find(t => t.id === parsed.template);
+      loadCVData({ data: parsed.data, template: tpl ? tpl.id : "modern", accent: parsed.accent });
       document.getElementById("draft-banner").hidden = false;
     }
   } catch {
     safeRemoveItem(DRAFT_KEY);
   }
 }
-document.getElementById("restore-draft-btn").addEventListener("click", () => {
-  const raw = safeGetItem(DRAFT_KEY);
-  try {
-    const parsed = JSON.parse(raw);
-    const tpl = TEMPLATES.find(t => t.id === parsed.template);
-    loadCVData({ data: parsed.data, template: tpl ? tpl.id : "modern", accent: parsed.accent });
-    showToast("Draft restored");
-  } catch {
-    showToast("Couldn't read the saved draft");
-  }
-  document.getElementById("draft-banner").hidden = true;
-});
 document.getElementById("discard-draft-btn").addEventListener("click", () => {
+  if (!confirm("Clear your restored draft and start with a blank CV?")) return;
+  document.getElementById("cv-form").reset();
+  document.getElementById("experience-list").innerHTML = "";
+  document.getElementById("education-list").innerHTML = "";
   safeRemoveItem(DRAFT_KEY);
   document.getElementById("draft-banner").hidden = true;
+  updatePreview();
 });
 
 /* ── RECENT CVs ───────────────────────────────────────────── */
@@ -1859,7 +2019,7 @@ function loadCVData(cv) {
   updatePreview();
 }
 
-/* ── AI ASSISTANT ─────────────────────────────────────────── */
+/* ── AI ASSISTANT (logic lives in ai-logic.js, this wires up the UI) ── */
 document.getElementById("ai-fab").addEventListener("click", () => {
   document.getElementById("ai-panel").classList.toggle("open");
 });
@@ -1872,8 +2032,29 @@ document.getElementById("ai-input").addEventListener("keydown", e => {
 });
 document.getElementById("ai-send").addEventListener("click", sendAI);
 
-/* ai conversation history: [{role,content}] */
-let aiHistory = [];
+/* render suggestion chips once at load */
+(function renderSuggestionChips() {
+  const wrap = document.getElementById("ai-suggestions");
+  if (!wrap || !window.AnicadeAI) return;
+  const chips = AnicadeAI.SUGGESTED_QUESTIONS.slice(0, 4);
+  wrap.innerHTML = chips.map(q => `<button type="button" class="ai-suggestion-chip">${escHtml(q)}</button>`).join("");
+  wrap.addEventListener("click", (e) => {
+    const chip = e.target.closest(".ai-suggestion-chip");
+    if (!chip) return;
+    document.getElementById("ai-input").value = chip.textContent;
+    sendAI();
+  });
+})();
+
+/* check + display provider status */
+(async function initAIStatus() {
+  const statusEl = document.getElementById("ai-status");
+  if (!window.AnicadeAI) { statusEl.textContent = "unavailable"; statusEl.classList.add("offline"); return; }
+  statusEl.textContent = "checking…";
+  const online = await AnicadeAI.pingProvider();
+  statusEl.textContent = online ? "online" : "offline mode";
+  statusEl.classList.add(online ? "online" : "offline");
+})();
 
 async function sendAI() {
   const input = document.getElementById("ai-input");
@@ -1883,44 +2064,14 @@ async function sendAI() {
   appendAI("user", msg);
   const loader = appendAI("ai", "Thinking…", true);
 
-  /* push user turn into history BEFORE the request */
-  aiHistory.push({ role: "user", content: msg });
-  if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
-
   const d = getFormData();
-  const sysPrompt = "You are a professional CV writing assistant built into ANICADE.CV — a Zambia-based CV generator by ANICADE Tech. " +
-    "Help the user write compelling, professional CV content. Be concise and actionable. " +
-    "Context about this user's CV — Name: \"" + (d.fullName||"unspecified") + "\", " +
-    "Target role: \"" + (d.targetRole||"unspecified") + "\", " +
-    "Skills: \"" + (d.skills||"unspecified") + "\", " +
-    "Summary: \"" + (d.summary||"not yet written") + "\".";
-
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: sysPrompt,
-        messages: aiHistory
-      })
-    });
-    const data = await res.json();
+    const reply = await AnicadeAI.getChatReply(msg, d);
     loader.remove();
-    const reply = (data.content && data.content[0] && data.content[0].text) ||
-                  (data.error && data.error.message) ||
-                  "No response received. Please try again.";
     appendAI("ai", reply);
-    /* push assistant turn so next message has full context */
-    aiHistory.push({ role: "assistant", content: reply });
-    if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
-  } catch(err) {
+  } catch (err) {
     loader.remove();
-    appendAI("ai", "Connection error — check your internet and try again.");
+    appendAI("ai", "Sorry, I couldn't reach any writing service right now. Please check your internet connection and try again in a moment.");
   }
 }
 
@@ -1942,41 +2093,92 @@ document.querySelectorAll(".ai-enhance-btn[data-field]").forEach(btn => {
     aiEnhanceField(ta, fieldName === "summary" ? "professional CV summary paragraph" : "CV section");
   });
 });
+document.querySelectorAll(".spell-btn[data-field]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const fieldName = btn.dataset.field;
+    const ta = document.querySelector("[name='" + fieldName + "']");
+    runSpellCheck(ta, btn);
+  });
+});
 
 async function aiEnhanceField(textarea, context) {
   if (!textarea) return;
   const original = textarea.value.trim();
   if (!original) { showToast("Add some text first, then use AI Enhance"); return; }
   const d = getFormData();
+  const btns = document.querySelectorAll(".ai-enhance-btn");
+  btns.forEach(b => b.disabled = true);
   textarea.style.opacity = ".5";
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        messages: [{
-          role: "user",
-          content: "Improve this " + context + " for a " + (d.targetRole||"professional") + " CV. Make it punchy, specific and achievement-focused. Return ONLY the improved text, no explanation, no preamble.\n\nOriginal:\n" + original
-        }]
-      })
-    });
-    const data = await res.json();
-    const improved = data.content && data.content[0] && data.content[0].text;
+    const improved = await AnicadeAI.enhanceText(original, context, d.targetRole || "professional");
     if (improved) {
       textarea.value = improved.trim();
       updatePreview();
-      showToast("Text enhanced by AI");
+      showToast("Text enhanced");
+    } else {
+      showToast("AI enhance returned nothing — try again");
     }
   } catch {
-    showToast("AI enhance failed — check connection");
+    showToast("AI enhance failed — check connection, using offline suggestions instead");
+    const fallback = AnicadeAI.localEnhance(original);
+    if (fallback && fallback !== original) {
+      textarea.value = fallback;
+      updatePreview();
+    }
   }
+  btns.forEach(b => b.disabled = false);
   textarea.style.opacity = "1";
 }
+
+/* ── SPELL CHECK ───────────────────────────────────────────── */
+async function runSpellCheck(textarea, triggerBtn) {
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) { showToast("Nothing to check yet"); return; }
+  if (triggerBtn) triggerBtn.disabled = true;
+  try {
+    const issues = await AnicadeAI.checkSpelling(text);
+    if (!issues.length) {
+      showToast("No spelling issues found ✓");
+    } else {
+      appendAI("ai", "Spelling check found " + issues.length + " possible issue" + (issues.length===1?"":"s") + ":\n" +
+        issues.slice(0, 8).map(i => "• \"" + i.bad + "\" → " + (i.suggestions[0] || "check spelling")).join("\n"));
+      document.getElementById("ai-panel").classList.add("open");
+      showToast("Found " + issues.length + " possible spelling issue(s) — see AI panel");
+    }
+  } catch {
+    showToast("Spell check service unavailable right now — your browser's built-in spellcheck (red underlines) still works");
+  }
+  if (triggerBtn) triggerBtn.disabled = false;
+}
+
+/* ── PROMO / AD OVERLAY ───────────────────────────────────── */
+const PROMO_SESSION_KEY = "anicade_promo_shown_v1";
+function openPromo() {
+  const overlay = document.getElementById("promo-overlay");
+  const fill = document.getElementById("promo-timer-fill");
+  fill.style.animation = "none";
+  void fill.offsetWidth; /* restart animation */
+  fill.style.animation = "promo-countdown 5s linear forwards";
+  overlay.classList.add("open");
+  clearTimeout(window.__promoTimer);
+  window.__promoTimer = setTimeout(closePromo, 5000);
+}
+function closePromo() {
+  document.getElementById("promo-overlay").classList.remove("open");
+  clearTimeout(window.__promoTimer);
+}
+document.getElementById("promo-overlay").addEventListener("click", (e) => {
+  if (e.target.id === "promo-overlay") closePromo();
+});
+document.getElementById("promo-close").addEventListener("click", (e) => {
+  e.stopPropagation();
+  closePromo();
+});
+document.getElementById("promo-card").addEventListener("click", (e) => {
+  if (e.target.closest("#promo-close") || e.target.closest("#promo-cta")) return;
+  window.open("https://www.anicadetech.xyz", "_blank", "noreferrer");
+});
 
 /* ── TOAST ────────────────────────────────────────────────── */
 function showToast(msg) {
@@ -1992,6 +2194,15 @@ if (!STORAGE_OK) {
   document.getElementById("storage-warning").hidden = false;
 }
 updatePreview();
+
+/* show the ANICADE Tech promo once per browser session, a couple seconds
+   after load so it never blocks the first paint of the CV builder */
+if (!sessionStorage.getItem(PROMO_SESSION_KEY)) {
+  setTimeout(() => {
+    openPromo();
+    try { sessionStorage.setItem(PROMO_SESSION_KEY, "1"); } catch {}
+  }, 2500);
+}
 </script>
 </body>
 </html>
