@@ -188,6 +188,28 @@
       transition: width .3s ease;
     }
 
+    /* draft banner */
+    .draft-banner {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px; padding: 14px 16px;
+      border: 1px solid rgba(0,191,255,.32);
+      border-radius: 10px;
+      background: rgba(0,191,255,.08);
+      color: var(--text); font-size: 13px; line-height: 1.5;
+    }
+    .draft-banner[hidden] { display: none; }
+    .draft-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .draft-banner-actions button {
+      padding: 7px 13px; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12px;
+      border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: var(--text);
+      touch-action: manipulation;
+    }
+    .draft-banner-actions .restore-btn {
+      border-color: rgba(0,191,255,.45); background: rgba(0,191,255,.16); color: var(--accent);
+    }
+    .draft-banner-actions .discard-btn:hover { border-color: rgba(249,115,115,.4); color: var(--danger); }
+
     /* form / details */
     form { display: grid; gap: 12px; }
     details {
@@ -230,6 +252,7 @@
       font-size: 13px; font-weight: 700;
     }
     label.full { grid-column: 1 / -1; }
+    .required-mark { color: var(--danger); margin-left: 2px; }
     input, textarea, select {
       width: 100%; min-width: 0;
       border: 1px solid rgba(255,255,255,.11);
@@ -247,6 +270,18 @@
       box-shadow: 0 0 0 3px rgba(0,191,255,.1);
     }
 
+    /* validation */
+    .input-invalid {
+      border-color: rgba(249,115,115,.75) !important;
+      box-shadow: 0 0 0 3px rgba(249,115,115,.14) !important;
+    }
+    .field-error-msg {
+      color: var(--danger);
+      font-size: 11.5px;
+      font-weight: 600;
+      margin-top: -2px;
+    }
+
     /* repeat sections */
     .repeat-head {
       display: flex; justify-content: space-between;
@@ -260,8 +295,10 @@
       background: rgba(198,168,92,.08);
       color: var(--gold); font-weight: 800; font-size: 12px;
       white-space: nowrap; transition: all .2s;
+      touch-action: manipulation;
     }
     .mini-btn:hover { background: rgba(198,168,92,.16); transform: translateY(-1px); }
+    .mini-btn:active { transform: scale(.97); }
     .repeat-list { display: grid; gap: 12px; }
     .repeat-item {
       position: relative; padding: 14px;
@@ -271,13 +308,16 @@
     }
     .remove-btn {
       position: absolute; top: 8px; right: 8px;
-      padding: 5px 9px; border-radius: 6px; cursor: pointer;
+      padding: 7px 10px; border-radius: 6px; cursor: pointer;
       border: 1px solid rgba(249,115,115,.3);
       background: rgba(249,115,115,.08);
       color: var(--danger); font-size: 11px; font-weight: 800;
       transition: all .2s;
+      touch-action: manipulation;
+      min-height: 30px;
     }
     .remove-btn:hover { background: rgba(249,115,115,.18); }
+    .remove-btn:active { transform: scale(.96); }
     .repeat-item .form-grid { padding-top: 30px; }
 
     /* ai-enhance inline btn */
@@ -291,9 +331,12 @@
       background: rgba(0,191,255,.07);
       color: var(--accent); font-size: 12px; font-weight: 700;
       transition: all .2s;
+      touch-action: manipulation;
     }
     .ai-enhance-btn:hover { background: rgba(0,191,255,.14); }
+    .ai-enhance-btn:active { transform: scale(.97); }
     .ai-enhance-btn svg { flex-shrink: 0; }
+    .ai-enhance-btn[disabled] { opacity: .5; cursor: not-allowed; }
 
     /* ── PREVIEW PANEL (RIGHT) ──────────────────────────────── */
     .preview-panel {
@@ -317,8 +360,11 @@
       background: rgba(255,255,255,.045);
       color: var(--muted); font-weight: 800; font-size: 12px;
       transition: all .2s;
+      touch-action: manipulation;
+      min-height: 40px;
     }
     .tool-btn:hover { border-color: rgba(0,191,255,.4); color: var(--text); transform: translateY(-1px); }
+    .tool-btn:active { transform: scale(.97); }
     .tool-btn.primary {
       background: linear-gradient(135deg, rgba(198,168,92,.22), rgba(0,191,255,.17));
       border-color: rgba(198,168,92,.45); color: var(--gold);
@@ -490,14 +536,14 @@
     .gallery-panel > p { color: var(--muted); margin: 0 0 32px; line-height: 1.6; }
     .template-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 20px;
     }
     .template-card {
       border: 2px solid var(--line);
       border-radius: 12px; overflow: hidden;
       background: var(--panel);
-      cursor: pointer; transition: all .25s;
+      cursor: default; transition: all .25s;
     }
     .template-card:hover { border-color: rgba(0,191,255,.4); transform: translateY(-3px); }
     .template-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
@@ -518,23 +564,28 @@
       font-size: 12px; font-weight: 700; margin: 0 0 5px;
     }
     .template-desc { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-    .template-accents { display: flex; gap: 6px; }
+    .template-accents { display: flex; gap: 8px; flex-wrap: wrap; }
     .accent-dot {
-      width: 18px; height: 18px; border-radius: 50%;
-      cursor: pointer; border: 2px solid transparent;
-      transition: border-color .2s;
+      width: 30px; height: 30px; border-radius: 50%;
+      cursor: pointer; border: 3px solid transparent; padding: 0;
+      transition: border-color .2s, transform .15s;
+      touch-action: manipulation;
     }
-    .accent-dot.active { border-color: white; }
+    .accent-dot:active { transform: scale(.9); }
+    .accent-dot.active { border-color: white; box-shadow: 0 0 0 2px rgba(0,0,0,.2); }
     .select-template-btn {
       display: block; width: 100%;
-      margin-top: 12px; padding: 9px;
+      margin-top: 12px; padding: 11px;
       border-radius: 8px; cursor: pointer; text-align: center;
       border: 1px solid rgba(0,191,255,.35);
       background: rgba(0,191,255,.08);
       color: var(--accent); font-weight: 800; font-size: 12px;
       transition: all .2s;
+      touch-action: manipulation;
+      min-height: 40px;
     }
     .select-template-btn:hover { background: rgba(0,191,255,.18); }
+    .select-template-btn:active { transform: scale(.98); }
     .select-template-btn.selected-state {
       background: rgba(0,191,255,.2);
       border-color: var(--accent);
@@ -558,9 +609,11 @@
     .recent-card .rc-meta { color: var(--muted); font-size: 12px; }
     .recent-actions { display: flex; gap: 8px; }
     .rc-load-btn, .rc-del-btn {
-      flex: 1; padding: 7px; border-radius: 7px; cursor: pointer;
+      flex: 1; padding: 9px; border-radius: 7px; cursor: pointer;
       font-size: 12px; font-weight: 700; border: 1px solid;
       transition: all .2s;
+      touch-action: manipulation;
+      min-height: 38px;
     }
     .rc-load-btn {
       border-color: rgba(0,191,255,.35);
@@ -572,9 +625,9 @@
       background: rgba(249,115,115,.07); color: var(--danger);
     }
     .rc-del-btn:hover { background: rgba(249,115,115,.18); }
-    .save-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .save-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
     .save-name-input {
-      flex: 1; padding: 10px 13px; border-radius: 8px;
+      flex: 1; min-width: 180px; padding: 10px 13px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,.11);
       background: var(--field); color: var(--text); outline: none;
     }
@@ -584,6 +637,8 @@
       border: 1px solid rgba(198,168,92,.4);
       background: rgba(198,168,92,.1); color: var(--gold);
       font-weight: 800; font-size: 13px; transition: all .2s;
+      touch-action: manipulation;
+      min-height: 42px;
     }
     .save-cv-btn:hover { background: rgba(198,168,92,.2); }
     .empty-recent {
@@ -591,6 +646,14 @@
       border: 1px dashed rgba(255,255,255,.12);
       border-radius: 12px; color: var(--muted);
     }
+    .storage-warning {
+      padding: 14px 16px; margin-bottom: 18px;
+      border: 1px solid rgba(249,115,115,.3);
+      border-radius: 10px;
+      background: rgba(249,115,115,.08);
+      color: var(--text); font-size: 13px; line-height: 1.6;
+    }
+    .storage-warning[hidden] { display: none; }
 
     /* ── LEGAL TAB ──────────────────────────────────────────── */
     .legal-panel {
@@ -624,8 +687,10 @@
       box-shadow: 0 8px 32px rgba(0,191,255,.25);
       transition: all .25s;
       backdrop-filter: blur(12px);
+      touch-action: manipulation;
     }
     .ai-fab:hover { transform: scale(1.1); box-shadow: 0 12px 40px rgba(0,191,255,.35); }
+    .ai-fab:active { transform: scale(.95); }
     .ai-panel {
       position: fixed; bottom: 96px; right: 28px; z-index: 99;
       width: min(420px, calc(100vw - 40px));
@@ -651,8 +716,9 @@
     }
     .ai-close {
       background: none; border: none; cursor: pointer;
-      color: var(--muted); font-size: 18px; padding: 0 4px;
+      color: var(--muted); font-size: 18px; padding: 6px 8px;
       transition: color .2s;
+      touch-action: manipulation;
     }
     .ai-close:hover { color: var(--text); }
     .ai-messages {
@@ -694,6 +760,7 @@
       background: rgba(0,191,255,.14);
       color: var(--accent); font-weight: 800; font-size: 13px;
       transition: all .2s;
+      touch-action: manipulation;
     }
     .ai-send:hover { background: rgba(0,191,255,.24); }
 
@@ -707,6 +774,8 @@
       color: var(--text); font-size: 13px; font-weight: 700;
       opacity: 0; transition: all .25s;
       pointer-events: none;
+      max-width: calc(100vw - 40px);
+      text-align: center;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -719,7 +788,7 @@
     @media (max-width: 760px) {
       .top-bar { grid-template-columns: 1fr; gap: 10px; padding: 12px 14px; }
       .main-tabs { justify-content: stretch; }
-      .tab-btn { flex: 1; padding: 8px 4px; font-size: 10px; }
+      .tab-btn { flex: 1; padding: 10px 4px; font-size: 10px; min-height: 40px; }
       .site-link { justify-self: start; }
       .control-panel, .preview-panel { padding: 14px; }
       .panel-head h1 { font-size: 20px; }
@@ -727,17 +796,20 @@
       .preview-toolbar { flex-direction: column; align-items: stretch; }
       .toolbar-actions { justify-content: stretch; }
       .tool-btn { flex: 1; text-align: center; }
-      .cv-stage { justify-content: start; }
+      .cv-stage { justify-content: start; padding-bottom: 100px; }
       .cv-document, .cv-page { width: 794px; }
-      .ai-fab { bottom: 16px; right: 16px; }
-      .ai-panel { right: 16px; bottom: 84px; }
+      .draft-banner { flex-direction: column; align-items: stretch; }
+      .draft-banner-actions { justify-content: stretch; }
+      .draft-banner-actions button { flex: 1; }
+      .ai-fab { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px; }
+      .ai-panel { right: 16px; left: 16px; width: auto; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
     }
 
     /* ── PRINT ──────────────────────────────────────────────── */
     @media print {
       body { background: #fff; }
       .top-bar, .control-panel, .preview-toolbar, .rings-bg,
-      .ai-fab, .ai-panel, .toast, .gallery-panel, .recent-panel, .legal-panel { display: none !important; }
+      .ai-fab, .ai-panel, .toast, .gallery-panel, .recent-panel, .legal-panel, .draft-banner { display: none !important; }
       .app-shell, .app-shell.active, .preview-panel, .cv-stage {
         display: block !important; padding: 0; margin: 0;
         max-height: none; overflow: visible;
@@ -775,6 +847,15 @@
         <h1>Build a job-ready CV</h1>
         <p>Fill in your details, pick a template and export a polished multi-page CV instantly.</p>
       </div>
+
+      <div class="draft-banner" id="draft-banner" hidden>
+        <span>We found a saved draft from your last visit. Would you like to restore it?</span>
+        <div class="draft-banner-actions">
+          <button type="button" class="restore-btn" id="restore-draft-btn">Restore draft</button>
+          <button type="button" class="discard-btn" id="discard-draft-btn">Discard</button>
+        </div>
+      </div>
+
       <div class="progress-card">
         <div class="progress-row">
           <span class="pct" id="completion-label">0%</span>
@@ -793,10 +874,10 @@
           </summary>
           <div class="section-body">
             <div class="form-grid">
-              <label>Full name <input name="fullName" placeholder="e.g. Mutale Chanda" required></label>
-              <label>Target role <input name="targetRole" placeholder="e.g. Software Developer" required></label>
-              <label>Email <input name="email" type="email" placeholder="you@example.com"></label>
-              <label>Phone <input name="phone" placeholder="+260 777 000 000"></label>
+              <label>Full name<span class="required-mark">*</span> <input name="fullName" placeholder="e.g. Mutale Chanda" required></label>
+              <label>Target role<span class="required-mark">*</span> <input name="targetRole" placeholder="e.g. Software Developer" required></label>
+              <label>Email <input name="email" type="email" placeholder="you@example.com" inputmode="email" autocomplete="email"></label>
+              <label>Phone <input name="phone" placeholder="+260 777 000 000" inputmode="tel" autocomplete="tel"></label>
               <label>Location <input name="location" placeholder="Lusaka, Zambia"></label>
               <label>Portfolio / LinkedIn <input name="portfolio" placeholder="https://linkedin.com/in/you"></label>
             </div>
@@ -925,7 +1006,10 @@
   <section class="tab-panel recent-panel" id="recent-panel">
     <p class="eyebrow">Saved CVs</p>
     <h2>Recent CVs</h2>
-    <p>Save your current CV data by name and reload it any time — stored locally in your browser.</p>
+    <p>Save your current CV data by name and reload it any time — stored locally in your browser. Your in-progress CV is also auto-saved on this device as you type.</p>
+    <div class="storage-warning" id="storage-warning" hidden>
+      Your browser is blocking local storage (this can happen in private/incognito mode). Auto-save and named saves won't persist between visits — export your CV as HTML when you're done to avoid losing work.
+    </div>
     <div class="save-row">
       <input class="save-name-input" id="save-name-input" placeholder="Give this CV a name…">
       <button class="save-cv-btn" id="save-cv-btn">Save current CV</button>
@@ -942,7 +1026,7 @@
       <p>The generator is provided for convenience and does not guarantee employment, interview selection or recruiter approval. Always review the generated CV before sending it to employers.</p>
       <p>ANICADE Tech branding belongs to ANICADE Tech. Visit <a href="https://www.anicadetech.xyz" target="_blank" rel="noreferrer">www.anicadetech.xyz</a> for company information.</p>
       <h2>Privacy Policy</h2>
-      <p>All CV information is processed entirely in your browser. No data is sent to any server. The Recent CVs feature uses your browser's localStorage — data stays on your device and is never uploaded.</p>
+      <p>All CV information is processed entirely in your browser. No data is sent to any server except when you use the AI Assistant. The Recent CVs and auto-save draft features use your browser's localStorage — data stays on your device and is never uploaded.</p>
       <p>Do not enter sensitive information not needed for a job application, such as passwords, bank details or national identity numbers.</p>
       <h2>AI Assistant</h2>
       <p>The AI Assistant uses the Anthropic Claude API to help polish your CV text. Your prompts and CV content snippets are sent to the API for this purpose. Do not include passwords or highly sensitive personal data in AI-enhanced fields.</p>
@@ -960,7 +1044,7 @@
 <div class="ai-panel" id="ai-panel">
   <div class="ai-panel-head">
     <h3>ANICADE AI — Writing Assistant</h3>
-    <button class="ai-close" id="ai-close">✕</button>
+    <button class="ai-close" id="ai-close" aria-label="Close AI Assistant">✕</button>
   </div>
   <div class="ai-messages" id="ai-messages">
     <div class="ai-msg ai">Hey! I'm your CV writing assistant. Ask me to improve your summary, suggest bullet points, tailor your CV for a specific role, or anything else.</div>
@@ -1070,6 +1154,34 @@ const TEMPLATES = [
 let currentTemplate = TEMPLATES[0];
 let currentAccent = TEMPLATES[0].accents[0].hex;
 
+/* ── STORAGE HELPERS ──────────────────────────────────────── */
+const DRAFT_KEY = "anicade_cv_draft_v1";
+
+function storageAvailable() {
+  try {
+    const t = "__anicade_test__";
+    window.localStorage.setItem(t, "1");
+    window.localStorage.removeItem(t);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+const STORAGE_OK = storageAvailable();
+
+function safeGetItem(key) {
+  if (!STORAGE_OK) return null;
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function safeSetItem(key, value) {
+  if (!STORAGE_OK) return false;
+  try { localStorage.setItem(key, value); return true; } catch { return false; }
+}
+function safeRemoveItem(key) {
+  if (!STORAGE_OK) return;
+  try { localStorage.removeItem(key); } catch { /* ignore */ }
+}
+
 /* ── TAB SWITCHING ────────────────────────────────────────── */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -1080,6 +1192,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     const panel = document.getElementById(tab + "-panel");
     if (panel) panel.classList.add("active");
     if (tab === "recent") renderRecent();
+    if (tab === "templates") buildGallery();
   });
 });
 
@@ -1123,6 +1236,51 @@ function updateCompletion() {
   const pct = Math.round((filled / (TRACKED.length + 1)) * 100);
   document.getElementById("completion-label").textContent = pct + "%";
   document.getElementById("completion-bar").style.width = pct + "%";
+}
+
+/* ── FIELD VALIDATION ─────────────────────────────────────── */
+function isValidEmail(v) {
+  if (!v) return true; // optional field
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+function isValidPhone(v) {
+  if (!v) return true; // optional field
+  return /^[+()0-9][0-9\s().-]{6,}$/.test(v);
+}
+function setFieldError(input, message) {
+  clearFieldError(input);
+  if (!message) return;
+  input.classList.add("input-invalid");
+  const msg = document.createElement("span");
+  msg.className = "field-error-msg";
+  msg.textContent = message;
+  input.insertAdjacentElement("afterend", msg);
+}
+function clearFieldError(input) {
+  input.classList.remove("input-invalid");
+  const next = input.nextElementSibling;
+  if (next && next.classList && next.classList.contains("field-error-msg")) next.remove();
+}
+function attachValidation() {
+  const emailInput = document.querySelector('[name="email"]');
+  if (emailInput) {
+    emailInput.addEventListener("blur", () => {
+      setFieldError(emailInput, isValidEmail(emailInput.value.trim()) ? "" : "That doesn't look like a valid email — check for a missing @ or domain.");
+    });
+  }
+  const phoneInput = document.querySelector('[name="phone"]');
+  if (phoneInput) {
+    phoneInput.addEventListener("blur", () => {
+      setFieldError(phoneInput, isValidPhone(phoneInput.value.trim()) ? "" : "That doesn't look like a valid phone number.");
+    });
+  }
+  ["fullName", "targetRole"].forEach(name => {
+    const el = document.querySelector('[name="' + name + '"]');
+    if (!el) return;
+    el.addEventListener("blur", () => {
+      setFieldError(el, el.value.trim() ? "" : "This helps employers identify you — please fill it in.");
+    });
+  });
 }
 
 /* ── PREVIEW BUILDER ──────────────────────────────────────── */
@@ -1396,6 +1554,7 @@ function updatePreview() {
     name ? name + (role ? " — " + role : "") : "Your CV is taking shape";
 
   updateCompletion();
+  scheduleDraftSave();
 }
 
 /* live form events */
@@ -1409,6 +1568,8 @@ document.getElementById("clear-button").addEventListener("click", () => {
   document.getElementById("cv-form").reset();
   document.getElementById("experience-list").innerHTML = "";
   document.getElementById("education-list").innerHTML = "";
+  safeRemoveItem(DRAFT_KEY);
+  document.getElementById("draft-banner").hidden = true;
   updatePreview();
 });
 
@@ -1485,9 +1646,9 @@ function buildGallery() {
         <div class="template-name">${tpl.name}</div>
         <div class="template-desc">${tpl.desc}</div>
         <div class="template-accents" id="accents-${tpl.id}">
-          ${tpl.accents.map((a,i) => `<div class="accent-dot ${i===0&&tpl.id===currentTemplate.id?'active':''}" data-tpl="${tpl.id}" data-hex="${a.hex}" title="${a.label}" style="background:${a.hex}"></div>`).join("")}
+          ${tpl.accents.map((a,i) => `<button type="button" class="accent-dot ${i===0&&tpl.id===currentTemplate.id?'active':''}" data-tpl="${tpl.id}" data-hex="${a.hex}" aria-label="${a.label} accent" title="${a.label}" style="background:${a.hex}"></button>`).join("")}
         </div>
-        <button class="select-template-btn ${tpl.id===currentTemplate.id?'selected-state':''}" data-tpl="${tpl.id}">
+        <button type="button" class="select-template-btn ${tpl.id===currentTemplate.id?'selected-state':''}" data-tpl="${tpl.id}">
           ${tpl.id===currentTemplate.id ? "Currently selected" : "Use this template"}
         </button>
       </div>`;
@@ -1515,62 +1676,115 @@ function buildGallery() {
       thumb.appendChild(prev);
     });
   }, 80);
-
-  /* accent clicks */
-  document.querySelectorAll(".accent-dot").forEach(dot => {
-    dot.addEventListener("click", e => {
-      e.stopPropagation();
-      const tplId = dot.dataset.tpl;
-      const hex   = dot.dataset.hex;
-      if (tplId === currentTemplate.id) {
-        currentAccent = hex;
-        document.querySelectorAll("#accents-"+tplId+" .accent-dot").forEach(d=>d.classList.remove("active"));
-        dot.classList.add("active");
-        updatePreview();
-      }
-    });
-  });
-
-  /* select buttons */
-  document.querySelectorAll(".select-template-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const tpl = TEMPLATES.find(t => t.id === btn.dataset.tpl);
-      if (!tpl) return;
-      currentTemplate = tpl;
-      currentAccent   = tpl.accents[0].hex;
-      buildGallery();
-      updatePreview();
-      showToast("Template switched to " + tpl.name);
-    });
-  });
 }
 
-/* Rebuild gallery when tab is clicked */
-document.querySelector("[data-tab=templates]").addEventListener("click", () => {
-  setTimeout(buildGallery, 50);
+/* Delegated listeners for the template gallery — bound once, survive every
+   re-render of #template-grid (buildGallery replaces innerHTML each time),
+   which is what makes these buttons reliable across devices. */
+document.getElementById("template-grid").addEventListener("click", (e) => {
+  const dot = e.target.closest(".accent-dot");
+  if (dot) {
+    const tplId = dot.dataset.tpl;
+    const hex = dot.dataset.hex;
+    const tpl = TEMPLATES.find(t => t.id === tplId);
+    if (!tpl) return;
+    currentAccent = hex;
+    if (tplId !== currentTemplate.id) {
+      currentTemplate = tpl;
+      buildGallery();
+      showToast("Template switched to " + tpl.name);
+    } else {
+      document.querySelectorAll("#accents-"+tplId+" .accent-dot").forEach(d => d.classList.remove("active"));
+      dot.classList.add("active");
+    }
+    updatePreview();
+    return;
+  }
+  const selectBtn = e.target.closest(".select-template-btn");
+  if (selectBtn) {
+    const tpl = TEMPLATES.find(t => t.id === selectBtn.dataset.tpl);
+    if (!tpl) return;
+    currentTemplate = tpl;
+    currentAccent   = tpl.accents[0].hex;
+    buildGallery();
+    updatePreview();
+    showToast("Template switched to " + tpl.name);
+  }
+});
+
+/* ── DRAFT AUTO-SAVE / RESTORE ────────────────────────────── */
+let draftSaveTimer = null;
+function scheduleDraftSave() {
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(saveDraft, 600);
+}
+function saveDraft() {
+  const payload = {
+    data: getFormData(),
+    template: currentTemplate.id,
+    accent: currentAccent,
+    savedAt: Date.now()
+  };
+  safeSetItem(DRAFT_KEY, JSON.stringify(payload));
+}
+function draftHasContent(data) {
+  if (!data) return false;
+  return !!(data.fullName || data.targetRole || data.summary ||
+    (data.experience && data.experience.length) ||
+    (data.education && data.education.length));
+}
+function checkForDraft() {
+  const raw = safeGetItem(DRAFT_KEY);
+  if (!raw) return;
+  try {
+    const parsed = JSON.parse(raw);
+    if (draftHasContent(parsed.data)) {
+      document.getElementById("draft-banner").hidden = false;
+    }
+  } catch {
+    safeRemoveItem(DRAFT_KEY);
+  }
+}
+document.getElementById("restore-draft-btn").addEventListener("click", () => {
+  const raw = safeGetItem(DRAFT_KEY);
+  try {
+    const parsed = JSON.parse(raw);
+    const tpl = TEMPLATES.find(t => t.id === parsed.template);
+    loadCVData({ data: parsed.data, template: tpl ? tpl.id : "modern", accent: parsed.accent });
+    showToast("Draft restored");
+  } catch {
+    showToast("Couldn't read the saved draft");
+  }
+  document.getElementById("draft-banner").hidden = true;
+});
+document.getElementById("discard-draft-btn").addEventListener("click", () => {
+  safeRemoveItem(DRAFT_KEY);
+  document.getElementById("draft-banner").hidden = true;
 });
 
 /* ── RECENT CVs ───────────────────────────────────────────── */
 function savedCVs() {
-  try { return JSON.parse(localStorage.getItem("anicade_cvs") || "{}"); }
+  try { return JSON.parse(safeGetItem("anicade_cvs") || "{}"); }
   catch { return {}; }
 }
 function saveCVs(obj) {
-  localStorage.setItem("anicade_cvs", JSON.stringify(obj));
+  return safeSetItem("anicade_cvs", JSON.stringify(obj));
 }
 
 document.getElementById("save-cv-btn").addEventListener("click", () => {
   const name = document.getElementById("save-name-input").value.trim();
   if (!name) { showToast("Enter a name for this CV first"); return; }
+  if (!STORAGE_OK) { showToast("Storage is unavailable in this browser mode"); return; }
   const cvs = savedCVs();
   cvs[name] = { data: getFormData(), template: currentTemplate.id, accent: currentAccent, saved: new Date().toLocaleDateString() };
-  saveCVs(cvs);
+  const ok = saveCVs(cvs);
   document.getElementById("save-name-input").value = "";
   renderRecent();
-  showToast("CV saved: " + name);
+  showToast(ok ? "CV saved: " + name : "Could not save — storage may be full or blocked");
 });
 
 function renderRecent() {
+  document.getElementById("storage-warning").hidden = STORAGE_OK;
   const grid = document.getElementById("recent-grid");
   const cvs = savedCVs();
   const keys = Object.keys(cvs);
@@ -1584,31 +1798,34 @@ function renderRecent() {
       <h4>${escHtml(k)}</h4>
       <div class="rc-meta">${escHtml(cv.data.fullName||"")} · ${escHtml(cv.data.targetRole||"")} · Saved ${escHtml(cv.saved||"")}</div>
       <div class="recent-actions">
-        <button class="rc-load-btn" data-key="${escHtml(k)}">Load</button>
-        <button class="rc-del-btn" data-key="${escHtml(k)}">Delete</button>
+        <button type="button" class="rc-load-btn" data-key="${escHtml(k)}">Load</button>
+        <button type="button" class="rc-del-btn" data-key="${escHtml(k)}">Delete</button>
       </div>
     </div>`;
   }).join("");
-
-  grid.querySelectorAll(".rc-load-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const cv = savedCVs()[btn.dataset.key];
-      if (!cv) return;
-      loadCVData(cv);
-      document.querySelector("[data-tab=builder]").click();
-      showToast("CV loaded: " + btn.dataset.key);
-    });
-  });
-  grid.querySelectorAll(".rc-del-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (!confirm("Delete saved CV: " + btn.dataset.key + "?")) return;
-      const cvs = savedCVs();
-      delete cvs[btn.dataset.key];
-      saveCVs(cvs);
-      renderRecent();
-    });
-  });
 }
+
+/* Delegated listeners for Recent CV cards — same reasoning as the template
+   grid: survives every re-render, no risk of stale/duplicate bindings. */
+document.getElementById("recent-grid").addEventListener("click", (e) => {
+  const loadBtn = e.target.closest(".rc-load-btn");
+  if (loadBtn) {
+    const cv = savedCVs()[loadBtn.dataset.key];
+    if (!cv) return;
+    loadCVData(cv);
+    document.querySelector('[data-tab="builder"]').click();
+    showToast("CV loaded: " + loadBtn.dataset.key);
+    return;
+  }
+  const delBtn = e.target.closest(".rc-del-btn");
+  if (delBtn) {
+    if (!confirm("Delete saved CV: " + delBtn.dataset.key + "?")) return;
+    const cvs = savedCVs();
+    delete cvs[delBtn.dataset.key];
+    saveCVs(cvs);
+    renderRecent();
+  }
+});
 
 function loadCVData(cv) {
   const form = document.getElementById("cv-form");
@@ -1769,6 +1986,11 @@ function showToast(msg) {
 }
 
 /* ── INIT ─────────────────────────────────────────────────── */
+attachValidation();
+checkForDraft();
+if (!STORAGE_OK) {
+  document.getElementById("storage-warning").hidden = false;
+}
 updatePreview();
 </script>
 </body>
