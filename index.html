@@ -814,25 +814,32 @@
     .promo-overlay {
       position: fixed; inset: 0; z-index: 500;
       display: none; align-items: center; justify-content: center;
-      padding: 24px;
+      padding: 0;
       background:
         radial-gradient(circle at top left, rgba(0,191,255,.22), transparent 34rem),
         radial-gradient(circle at 80% 20%, rgba(198,168,92,.18), transparent 30rem),
-        rgba(4,10,18,.97);
+        rgba(4,10,18,.99);
       backdrop-filter: blur(6px);
       cursor: pointer;
     }
     .promo-overlay.open { display: flex; }
     .promo-card {
       position: relative;
-      width: min(520px, 100%);
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       padding: 40px 32px 32px;
-      border: 1px solid rgba(198,168,92,.35);
-      border-radius: 18px;
+      border: none;
+      border-radius: 0;
       background: var(--panel-strong);
-      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      box-shadow: none;
       text-align: center;
       cursor: default;
+      overflow-y: auto;
     }
     .promo-close {
       position: absolute; top: 14px; right: 14px;
@@ -884,11 +891,12 @@
     .promo-timer {
       margin-top: 16px; height: 3px; border-radius: 999px;
       background: rgba(255,255,255,.08); overflow: hidden;
+      width: min(520px, 100%);
     }
     .promo-timer-fill {
       display: block; height: 100%; width: 100%;
       background: linear-gradient(90deg, var(--gold), var(--accent));
-      transform-origin: left; animation: promo-countdown 5s linear forwards;
+      transform-origin: left; animation: promo-countdown 10s linear forwards;
     }
     @keyframes promo-countdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
@@ -940,7 +948,7 @@
 
 <header class="top-bar">
   <a class="brand" href="https://tresforwrld.github.io/ANICADETECH.CV/" target="_blank" rel="noreferrer">
-    <span class="brand-mark">A</span>
+    <img class="brand-mark" src="https://i.imgur.com/RcBmjWM.png" alt="ANICADE Tech logo">
     <span>ANICADE<span class="dot">.</span>CV</span>
   </a>
   <nav class="main-tabs" aria-label="Application sections">
@@ -2153,16 +2161,15 @@ async function runSpellCheck(textarea, triggerBtn) {
 }
 
 /* ── PROMO / AD OVERLAY ───────────────────────────────────── */
-const PROMO_SESSION_KEY = "anicade_promo_shown_v1";
 function openPromo() {
   const overlay = document.getElementById("promo-overlay");
   const fill = document.getElementById("promo-timer-fill");
   fill.style.animation = "none";
   void fill.offsetWidth; /* restart animation */
-  fill.style.animation = "promo-countdown 5s linear forwards";
+  fill.style.animation = "promo-countdown 10s linear forwards";
   overlay.classList.add("open");
   clearTimeout(window.__promoTimer);
-  window.__promoTimer = setTimeout(closePromo, 5000);
+  window.__promoTimer = setTimeout(closePromo, 10000);
 }
 function closePromo() {
   document.getElementById("promo-overlay").classList.remove("open");
@@ -2195,14 +2202,12 @@ if (!STORAGE_OK) {
 }
 updatePreview();
 
-/* show the ANICADE Tech promo once per browser session, a couple seconds
-   after load so it never blocks the first paint of the CV builder */
-if (!sessionStorage.getItem(PROMO_SESSION_KEY)) {
-  setTimeout(() => {
-    openPromo();
-    try { sessionStorage.setItem(PROMO_SESSION_KEY, "1"); } catch {}
-  }, 2500);
-}
+/* Show the ANICADE Tech promo full-screen for 10 seconds on every page
+   load / reload (not just once per session), a couple seconds after load
+   so it never blocks the first paint of the CV builder. */
+setTimeout(() => {
+  openPromo();
+}, 1500);
 </script>
 </body>
 </html>
