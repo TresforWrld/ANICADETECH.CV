@@ -1920,14 +1920,15 @@ ${document.querySelector("style").textContent}
    browser's own Print dialog, which some users can't get to save
    correctly. Print (window.print()) is still available separately. */
 async function downloadPDF() {
-  if (typeof html2pdf === "undefined") {
+  if (typeof html2canvas === "undefined" || !(window.jspdf && window.jspdf.jsPDF)) {
     showToast("PDF engine failed to load — check your internet connection and try again");
     return;
   }
   const btn = document.getElementById("pdf-button");
   const original = btn.textContent;
   const source = document.getElementById("cv-preview");
-  if (!source || !source.querySelector(".cv-page")) {
+  const pageEls = source ? Array.from(source.querySelectorAll(".cv-page")) : [];
+  if (!pageEls.length) {
     showToast("Nothing to export yet — fill in some details first");
     return;
   }
@@ -1935,14 +1936,24 @@ async function downloadPDF() {
   btn.disabled = true;
   btn.textContent = "Generating PDF…";
 
-  /* Render an off-screen, full-scale clone so on-screen zoom/scroll
-     never affects the captured output. Positioned at (0,0) with a
-     negative z-index (rather than a negative left offset) so it never
-     throws off html2canvas's capture origin — a negative left offset
-     is what was causing the left edge of the PDF to get clipped. */
+  /* A4 in mm */
+  const A4_W_MM = 210;
+  const A4_H_MM = 297;
+
+  /* Off-screen wrapper holding a full-scale clone. Rendered at (0,0)
+     with a negative z-index (not a negative offset) so it never shifts
+     html2canvas's capture origin. */
   const clone = source.cloneNode(true);
-  clone.querySelectorAll(".cv-page").forEach(p => { p.style.boxShadow = "none"; p.style.margin = "0"; });
-  clone.style.width = "210mm";
+  const clonedPages = Array.from(clone.querySelectorAll(".cv-page"));
+  clonedPages.forEach(p => {
+    p.style.boxShadow = "none";
+    p.style.margin = "0";
+    /* Let each .cv-page grow to fit its real content instead of being
+       capped — we handle pagination ourselves below, so nothing should
+       get clipped by a min-height constraint here. */
+    p.style.height = "auto";
+  });
+  clone.style.width = A4_W_MM + "mm";
 
   const wrapper = document.createElement("div");
   wrapper.style.position = "absolute";
@@ -1954,10 +1965,8 @@ async function downloadPDF() {
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
 
-  /* Let the browser finish laying out and painting the clone (fonts,
-     images, multi-page flow) before we measure its height — measuring
-     too early was part of what caused the bottom of long CVs to be
-     cut off in the exported PDF. */
+  /* Let fonts/images finish painting before measuring/capturing —
+     measuring too early was part of what caused cropped output. */
   await new Promise(resolve => {
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -1968,30 +1977,63 @@ async function downloadPDF() {
 
   const d = getFormData();
   const filename = (d.fullName || "CV").replace(/\s+/g, "_") + "_CV.pdf";
-
-  const opt = {
-    margin: 0,
-    filename,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      /* windowHeight must match the FULL rendered height of the clone,
-         not just the browser's viewport height — otherwise html2canvas
-         only captures what would have fit on-screen and everything
-         below that gets cropped out of the final PDF. */
-      windowWidth: clone.scrollWidth,
-      windowHeight: clone.scrollHeight,
-      scrollX: 0,
-      scrollY: 0
-    },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    pagebreak: { mode: ["css", "legacy"] }
-  };
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
 
   try {
-    await html2pdf().set(opt).from(clone).save();
+    for (let i = 0; i < clonedPages.length; i++) {
+      const pageEl = clonedPages[i];
+
+      /* Capture this single CV "page" section at high resolution,
+         at whatever its true rendered height is (may be taller than
+         one A4 sheet if content overflowed). */
+      const canvas = await html2canvas(pageEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        windowWidth: pageEl.scrollWidth,
+        windowHeight: pageEl.scrollHeight,
+        scrollX: 0,
+        scrollY: 0
+      });
+
+      const pxPerMm = canvas.width / A4_W_MM;
+      const a4HeightPx = Math.round(A4_H_MM * pxPerMm);
+      const totalHeightPx = canvas.height;
+
+      /* Slice this tall canvas into as many exact-A4-height chunks as
+         needed, so every PDF page is a real, un-scaled A4 sheet and
+         overflow simply continues onto additional pages instead of
+         being squeezed, scaled, or cut off. */
+      let sy = 0;
+      let sliceIndex = 0;
+      while (sy < totalHeightPx) {
+        const sliceHeightPx = Math.min(a4HeightPx, totalHeightPx - sy);
+
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = sliceHeightPx;
+        const ctx = sliceCanvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+        ctx.drawImage(
+          canvas,
+          0, sy, canvas.width, sliceHeightPx,
+          0, 0, canvas.width, sliceHeightPx
+        );
+
+        const imgData = sliceCanvas.toDataURL("image/jpeg", 0.98);
+        const sliceHeightMm = sliceHeightPx / pxPerMm;
+
+        if (!(i === 0 && sliceIndex === 0)) pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, 0, A4_W_MM, sliceHeightMm);
+
+        sy += sliceHeightPx;
+        sliceIndex++;
+      }
+    }
+
+    pdf.save(filename);
     showToast("PDF downloaded");
   } catch (err) {
     showToast("Couldn't generate the PDF — try the Print button and choose 'Save as PDF' instead");
