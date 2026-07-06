@@ -1936,16 +1936,21 @@ async function downloadPDF() {
   btn.textContent = "Generating PDF…";
 
   /* Render an off-screen, full-scale clone so on-screen zoom/scroll
-     never affects the captured output. */
+     never affects the captured output. Positioned at (0,0) with a
+     negative z-index (rather than a negative left offset) so it never
+     throws off html2canvas's capture origin — a negative left offset
+     is what was causing the left edge of the PDF to get clipped. */
   const clone = source.cloneNode(true);
   clone.querySelectorAll(".cv-page").forEach(p => { p.style.boxShadow = "none"; p.style.margin = "0"; });
   clone.style.width = "210mm";
 
   const wrapper = document.createElement("div");
-  wrapper.style.position = "fixed";
-  wrapper.style.left = "-99999px";
+  wrapper.style.position = "absolute";
   wrapper.style.top = "0";
+  wrapper.style.left = "0";
+  wrapper.style.zIndex = "-1";
   wrapper.style.background = "#ffffff";
+  document.body.style.position = "relative";
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
 
@@ -1956,7 +1961,16 @@ async function downloadPDF() {
     margin: 0,
     filename,
     image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: clone.scrollWidth },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      windowWidth: clone.scrollWidth,
+      scrollX: 0,
+      scrollY: 0,
+      x: 0,
+      y: 0
+    },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     pagebreak: { mode: ["css", "legacy"] }
   };
