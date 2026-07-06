@@ -1954,6 +1954,18 @@ async function downloadPDF() {
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
 
+  /* Let the browser finish laying out and painting the clone (fonts,
+     images, multi-page flow) before we measure its height — measuring
+     too early was part of what caused the bottom of long CVs to be
+     cut off in the exported PDF. */
+  await new Promise(resolve => {
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    } else {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    }
+  });
+
   const d = getFormData();
   const filename = (d.fullName || "CV").replace(/\s+/g, "_") + "_CV.pdf";
 
@@ -1965,11 +1977,14 @@ async function downloadPDF() {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
+      /* windowHeight must match the FULL rendered height of the clone,
+         not just the browser's viewport height — otherwise html2canvas
+         only captures what would have fit on-screen and everything
+         below that gets cropped out of the final PDF. */
       windowWidth: clone.scrollWidth,
+      windowHeight: clone.scrollHeight,
       scrollX: 0,
-      scrollY: 0,
-      x: 0,
-      y: 0
+      scrollY: 0
     },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     pagebreak: { mode: ["css", "legacy"] }
