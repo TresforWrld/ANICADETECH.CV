@@ -416,6 +416,7 @@
       background: linear-gradient(135deg, rgba(198,168,92,.22), rgba(0,191,255,.17));
       border-color: rgba(198,168,92,.45); color: var(--gold);
     }
+    .tool-btn[disabled] { opacity: .55; cursor: not-allowed; transform: none !important; }
     .cv-stage {
       display: grid; justify-content: safe center;
       gap: 18px; overflow: auto;
@@ -1163,7 +1164,8 @@
           <button type="button" class="tool-btn" id="sample-button">Sample data</button>
           <button type="button" class="tool-btn" id="clear-button">Clear</button>
           <button type="button" class="tool-btn" id="html-button">Export HTML</button>
-          <button type="button" class="tool-btn primary" id="print-button">Print / PDF</button>
+          <button type="button" class="tool-btn" id="print-button">Print</button>
+          <button type="button" class="tool-btn primary" id="pdf-button">Download PDF</button>
         </div>
       </div>
       <div class="cv-stage">
@@ -1305,6 +1307,7 @@
 </template>
 
 <script src="ai-logic.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════
    ANICADE.CV — app.js (inlined)
@@ -1838,6 +1841,7 @@ document.getElementById("cv-form").addEventListener("input", updatePreview);
 
 /* ── TOOLBAR BUTTONS ──────────────────────────────────────── */
 document.getElementById("print-button").addEventListener("click", () => window.print());
+document.getElementById("pdf-button").addEventListener("click", downloadPDF);
 
 document.getElementById("clear-button").addEventListener("click", () => {
   if (!confirm("Clear all form data?")) return;
@@ -1908,6 +1912,66 @@ ${document.querySelector("style").textContent}
   a.click();
   showToast("CV exported as HTML");
 });
+
+/* ── PDF DOWNLOAD (separate from browser Print) ──────────────
+   Uses html2pdf.js (jsPDF + html2canvas bundle, loaded from a public
+   CDN) to rasterize the exact preview markup into a real multi-page
+   A4 PDF file and trigger a direct download — independent of the
+   browser's own Print dialog, which some users can't get to save
+   correctly. Print (window.print()) is still available separately. */
+async function downloadPDF() {
+  if (typeof html2pdf === "undefined") {
+    showToast("PDF engine failed to load — check your internet connection and try again");
+    return;
+  }
+  const btn = document.getElementById("pdf-button");
+  const original = btn.textContent;
+  const source = document.getElementById("cv-preview");
+  if (!source || !source.querySelector(".cv-page")) {
+    showToast("Nothing to export yet — fill in some details first");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Generating PDF…";
+
+  /* Render an off-screen, full-scale clone so on-screen zoom/scroll
+     never affects the captured output. */
+  const clone = source.cloneNode(true);
+  clone.querySelectorAll(".cv-page").forEach(p => { p.style.boxShadow = "none"; p.style.margin = "0"; });
+  clone.style.width = "210mm";
+
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.left = "-99999px";
+  wrapper.style.top = "0";
+  wrapper.style.background = "#ffffff";
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  const d = getFormData();
+  const filename = (d.fullName || "CV").replace(/\s+/g, "_") + "_CV.pdf";
+
+  const opt = {
+    margin: 0,
+    filename,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: clone.scrollWidth },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: ["css", "legacy"] }
+  };
+
+  try {
+    await html2pdf().set(opt).from(clone).save();
+    showToast("PDF downloaded");
+  } catch (err) {
+    showToast("Couldn't generate the PDF — try the Print button and choose 'Save as PDF' instead");
+  } finally {
+    document.body.removeChild(wrapper);
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
 
 /* ── TEMPLATE GALLERY ─────────────────────────────────────── */
 function buildGallery() {
